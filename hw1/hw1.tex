@@ -14,17 +14,12 @@
 \usepackage{amsmath}
 \usepackage{syntax}
 
-\newcommand{\step}[2]{{\tt #1} $\longrightarrow$ {\tt #2}}
-\newcommand{\eval}[2]{{\tt #1} $\Downarrow$ {\tt #2}}
-\newcommand{\tc}[3]{{\tt #1} $\vdash$ {\tt #2} \ : \ {\tt #3}}
-\newcommand{\tcDef}[2]{{\tt #1}\ : \ {\tt #2}}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
 
-\newcommand{\inferrule}[3]{\infrule[#1]{\mbox{#2}}{\mbox{#3}}}
-\newcommand{\inferax}[2]{\infrule[#1]{\mbox{}}{\mbox{#2}}}
-
-% To work with <> symbols in {grammar}, as the stackexchange link pointed out.
-\renewcommand{\syntleft}{\normalfont\itshape}
-\renewcommand{\syntright}{}
+\makeatletter
+\def\BState{\State\hskip-\ALG@thistlm}
+\makeatother
 
 \title{Homework 1}
 \author{Zhehao Wang 404380075 (Dis 1D)}
@@ -57,7 +52,27 @@
 
 \item[2]{Binary tree depth algorithm}
 
- 
+  \begin{algorithm}
+  \caption{Binary tree depth recursive}
+    \begin{algorithmic}[1]
+    \Function{maxDepth}{node}
+      \If {$node is nil$} 
+        \Return 0
+      \EndIf
+
+      \State $leftDepth \gets maxDepth(node.leftChild)$.
+      \State $rightDepth \gets maxDepth(node.rightChild)$.
+
+      \If {$leftDepth > rightDepth$} 
+        \Return $leftDepth + 1$
+      \Else {} 
+        \Return $rightDepth + 1$
+      \EndIf
+    \EndFunction
+    \end{algorithmic}
+  \end{algorithm}
+
+  O(n) with the number of nodes in the tree, as each node will be visited exactly once.
 
 \item[3]{Elementary-school-division algorithm}
 
@@ -70,20 +85,3 @@
 \end{description}
 
 \end{document}
-
-int maxDepth(Node node) {
-    if (node == NULL) {
-        return (0);
-    } else {
-        // compute the depth of each subtree
-        int lDepth = maxDepth(node.left);
-        int rDepth = maxDepth(node.right);
-        // use the larger one
-        if (lDepth > rDepth)
-            return (lDepth + 1);
-        else
-            return (rDepth + 1);
-    }
-}
-
-O(n) with the number of nodes in the tree, as each node will be visited exactly once
