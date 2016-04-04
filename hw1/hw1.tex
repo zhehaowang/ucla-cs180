@@ -1,0 +1,89 @@
+% Author: Zhehao Wang 404380075 zhehao@cs.ucla.edu
+
+% Thanks to Haitao Zhang for helping with (trying to) catch up with the class, and with the latex template
+% Grammar package: http://tex.stackexchange.com/questions/24886/which-package-can-be-used-to-write-bnf-grammars
+
+\documentclass{article}
+\topmargin = 0in
+\oddsidemargin = 0in
+\evensidemargin = \oddsidemargin
+\textwidth = 6.5in
+\textheight = 8in
+\usepackage{bcprules}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{syntax}
+
+\newcommand{\step}[2]{{\tt #1} $\longrightarrow$ {\tt #2}}
+\newcommand{\eval}[2]{{\tt #1} $\Downarrow$ {\tt #2}}
+\newcommand{\tc}[3]{{\tt #1} $\vdash$ {\tt #2} \ : \ {\tt #3}}
+\newcommand{\tcDef}[2]{{\tt #1}\ : \ {\tt #2}}
+
+\newcommand{\inferrule}[3]{\infrule[#1]{\mbox{#2}}{\mbox{#3}}}
+\newcommand{\inferax}[2]{\infrule[#1]{\mbox{}}{\mbox{#2}}}
+
+% To work with <> symbols in {grammar}, as the stackexchange link pointed out.
+\renewcommand{\syntleft}{\normalfont\itshape}
+\renewcommand{\syntright}{}
+
+\title{Homework 1}
+\author{Zhehao Wang 404380075 (Dis 1D)}
+\date{Apr 4, 2016}
+
+\begin{document}
+\maketitle
+
+\begin{description}
+
+\item[1]{Binary addition algorithm correctness proof}
+  
+  The input number $n$ can be denoted as $n=a_k...a_0$ in binary, where $a_i=0$, or $a_i=1$ ($0$ $\leq$ $i$ $\leq$ $k$, $k$ is the most significant bit). The flipped number $n'$ can be denoted as  $n'=a'_k...a'_0$ in binary.
+  We have 
+  \[
+  n = \sum_{j=0}^{k}{a_j \cdot 2^j}
+  \qquad \text{and} \qquad 
+  n' = \sum_{j=0}^{k}{a'_j \cdot 2^j}
+  \]
+  
+  Denote the position of first $0$ in $n$ from right to left to $i$, we have 
+  $$n = \sum_{j=0}^{i-1}{1 \cdot 2^j} + 0 \cdot 2^i + \sum_{j=i+1}^{k}{a_j \cdot 2^j} = \frac{2^i-1}{2-1} + \sum_{j=i+1}^{k}{a_j \cdot 2^j} = 2^i - 1 + \sum_{j=i+1}^{k}{a_j \cdot 2^j}$$ 
+  and
+  $$n + 1 = 2^i + \sum_{j=i+1}^{k}{a_j \cdot 2^j}$$
+
+  After the flip in question, resulting number $n'$ can be denoted as
+  $$n' = \sum_{j=0}^{k}{a'_j \cdot 2^j} = \sum_{j=0}^{i-1}{0 \cdot 2^j} + 1 \cdot 2^i + \sum_{j=i+1}^{k}{a'_j \cdot 2^j} = 2^i + \sum_{j=i+1}^{k}{a_j \cdot 2^j}$$
+
+  Thus we have $n' = n + 1$, and the binary addition algorithm in question is correct.
+
+\item[2]{Binary tree depth algorithm}
+
+ 
+
+\item[3]{Elementary-school-division algorithm}
+
+\item[4]{NIM game}
+
+(a)
+
+(b)
+
+\end{description}
+
+\end{document}
+
+int maxDepth(Node node) {
+    if (node == NULL) {
+        return (0);
+    } else {
+        // compute the depth of each subtree
+        int lDepth = maxDepth(node.left);
+        int rDepth = maxDepth(node.right);
+        // use the larger one
+        if (lDepth > rDepth)
+            return (lDepth + 1);
+        else
+            return (rDepth + 1);
+    }
+}
+
+O(n) with the number of nodes in the tree, as each node will be visited exactly once
