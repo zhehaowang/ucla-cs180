@@ -57,30 +57,84 @@
     \begin{algorithmic}[1]
     \Function{maxDepth}{node}
       \If {$node is nil$} 
-        \Return 0
+        \State \Return 0
       \EndIf
 
       \State $leftDepth \gets maxDepth(node.leftChild)$.
       \State $rightDepth \gets maxDepth(node.rightChild)$.
 
-      \If {$leftDepth > rightDepth$} 
-        \Return $leftDepth + 1$
+      \If {$leftDepth > rightDepth$}
+        \State \Return $leftDepth + 1$
       \Else {} 
-        \Return $rightDepth + 1$
+        \State \Return $rightDepth + 1$
       \EndIf
     \EndFunction
     \end{algorithmic}
   \end{algorithm}
 
-  O(n) with the number of nodes in the tree, as each node will be visited exactly once.
+  Correctness: by definition, the depth of the tree is the longest path from root to a leaf. Thus the depth at each node is $1 + max(the depth of left subtree, the depth of right subtree)$. The algorithm is correct as it recursively traverses both the left and right subtree of each node, and returns the larger depth of the two.
+
+  Time complexity: this algorithm is $O(n)$, where $n$ is the number of nodes in the tree. Reason being that each node (including \textit{null} leaves) of the tree will be visited exactly once, and the number of instructions executed during each visit is constant. The number of \textit{null} nodes will be $2n$ at maximum, so the algorithm visits at most $3n$ nodes, which makes it $O(n)$ by asymptotic notation.
+
+  \begin{algorithm}
+  \caption{Binary tree depth iterative}
+    \begin{algorithmic}[1]
+    \Function{getDepth}{root}
+      
+    \EndFunction
+    \end{algorithmic}
+  \end{algorithm}
 
 \item[3]{Elementary-school-division algorithm}
 
+  \begin{algorithm}
+  \caption{Elementary-school-division recursive}
+    \begin{algorithmic}[1]
+    \Function{division}{a, b}
+      \If {$a < 10b$} 
+        \State \Return $a/b$
+      \Else {} 
+        \State $temp \gets division(a, 10b)$
+        \State \Return $temp \cdot 10 + division(a - temp, b)$
+      \EndIf
+    \EndFunction
+    \end{algorithmic}
+  \end{algorithm}
+
+  Time complexity: 
+
+  \begin{algorithm}
+  \caption{Elementary-school-division iterative}
+    \begin{algorithmic}[1]
+    \Function{division}{a, b}
+      
+    \EndFunction
+    \end{algorithmic}
+  \end{algorithm}
+
 \item[4]{NIM game}
 
-(a)
+  (a.1) 
 
-(b)
+  \textbf{Theorem:} for any favorable table, there exists a move that makes the table unfavorable.
+
+  \textbf{Proof:} denote the columns that have odd number of ones as $c_0...c_k$, where $c_0$ is the least signifcant column. There exist at least one row $r$ whose number of matches $m_r$, when expressed in binary, has $1$ in column $c_k$.
+
+  Flip $m_r$'s bit in column $c_0...c_k$, we have a new number of matches $m'_r$. $m'_r < m_r$ since $m_r$ has $1$ in the most significant flipped bit (in column $c_k$), while $m'_r$ has $0$. By taking out $m_r - m'_r$ matches from row $r$, the number of ones in column $c_0...c_k$ is increased or decreased by $1$ and the number of ones in other columns remains unchanged. Thus after this removal, all columns will have even numbers of ones, making the table unfavorable.
+
+  (a.2) 
+
+  \textbf{Theorem:} for any unfavorable table, any move makes the table favorable for one’s opponent.
+
+  \textbf{Lemma:} for any non-empty row $r$ with $m_r$ matches, removing $i=1..m_r$ matches from row $r$ will at least flip one column of $m_r$. 
+
+  This lemma is trivial to prove: denote the number of matches after removing as $m'_r$, if after removing $i$ matches, none of the bits of $m_r$ changed, then $m_r = m'_r$, and $i = m'_r - m_r = 0$, which contradicts with $i=1..m_r$.
+
+  \textbf{Proof:} by the above lemma, for any non-empty row $r$, any move will flip at least one column of $m_r$. Denote the flipped columns of $m_r$ as $c_0..c_k$, the number of ones in columns $c_0...c_k$ will increase or decrease by $1$, thus column $c_0..c_k$ will have odd number of ones, making the table favorable for the opponent.
+
+  (b) 
+
+  \textbf{Winning strategy:} if there's only one row left, claim all the matches of that row. Otherwise, starting from a favorable board, pick a move that makes the board unfavorable for the opponent. Such a move always exists according to the proof in (a.1). When the board's unfavorable, whatever the opponent's move is, the board will become favorable again according to the proof in (a.2). The winning strategy is to repeat the steps above until claiming the last match.
 
 \end{description}
 
