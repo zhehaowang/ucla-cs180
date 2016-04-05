@@ -56,12 +56,12 @@
   \caption{Binary tree depth recursive}
     \begin{algorithmic}[1]
     \Function{maxDepth}{node}
-      \If {$node is nil$} 
+      \If {$node = nil$} 
         \State \Return 0
       \EndIf
 
-      \State $leftDepth \gets maxDepth(node.leftChild)$.
-      \State $rightDepth \gets maxDepth(node.rightChild)$.
+      \State $leftDepth \gets maxDepth(node.leftChild)$
+      \State $rightDepth \gets maxDepth(node.rightChild)$
 
       \If {$leftDepth > rightDepth$}
         \State \Return $leftDepth + 1$
@@ -90,12 +90,12 @@
   \begin{algorithm}
   \caption{Elementary-school-division recursive}
     \begin{algorithmic}[1]
-    \Function{division}{a, b}
+    \Function{division_r}{a, b}
       \If {$a < 10b$} 
         \State \Return $a/b$
       \Else {} 
-        \State $temp \gets division(a, 10b)$
-        \State \Return $temp \cdot 10 + division(a - temp, b)$
+        \State $temp \gets division\_r(a, 10b)$
+        \State \Return $temp \cdot 10 + division\_r(a - temp * 10 * b, b)$
       \EndIf
     \EndFunction
     \end{algorithmic}
@@ -106,8 +106,22 @@
   \begin{algorithm}
   \caption{Elementary-school-division iterative}
     \begin{algorithmic}[1]
-    \Function{division}{a, b}
-      
+    \Function{division_i}{a, b}
+      \State $temp \gets b$
+      \State $stack \gets []$
+      \While {$a > 10 \cdot temp$}
+        \State $stack.push(temp)$
+        \State $temp = 10 \cdot temp$
+      \EndWhile
+      \State $res \gets a / temp$
+      \State $result \gets res$
+      \While {$!stack.isEmpty()$}
+        \State $res \gets a - temp \cdot result$
+        \State $temp \gets stack.pop()$
+        \State $res \gets res / temp$
+        \State $result \gets 10 \cdot result + res$
+      \EndWhile
+      \State \Return $result$
     \EndFunction
     \end{algorithmic}
   \end{algorithm}
