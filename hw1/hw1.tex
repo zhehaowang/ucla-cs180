@@ -80,7 +80,25 @@
   \caption{Binary tree depth iterative}
     \begin{algorithmic}[1]
     \Function{getDepth}{root}
-      
+      \State $queue \gets [root]$
+      \State $height \gets 0$
+      \While {True}
+        \State $nodeCount \gets queue.size()$
+        \If {$nodeCount = 0$}
+          \State \Return $height$
+        \EndIf
+        \State $height \gets height + 1$
+        \While {$nodeCount > 0$}
+          \State $r \gets queue.dequeue()$
+          \If {$r.hasLeft()$}
+             \State $queue.enqueue(r.left())$
+          \EndIf
+          \If {$r.hasRight()$}
+             \State $queue.enqueue(r.right())$
+          \EndIf
+          $nodeCount \gets nodeCount - 1$
+        \EndWhile
+      \EndWhile
     \EndFunction
     \end{algorithmic}
   \end{algorithm}
