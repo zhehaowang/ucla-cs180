@@ -1,0 +1,117 @@
+% Author: Zhehao Wang 404380075 zhehao@cs.ucla.edu
+
+% Thanks to Haitao Zhang for helping with (trying to) catch up with the class, and with the latex template
+% Grammar package: http://tex.stackexchange.com/questions/24886/which-package-can-be-used-to-write-bnf-grammars
+
+\documentclass{article}
+\topmargin = 0in
+\oddsidemargin = 0in
+\evensidemargin = \oddsidemargin
+\textwidth = 6.5in
+\textheight = 8in
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{syntax}
+
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\makeatletter
+\def\BState{\State\hskip-\ALG@thistlm}
+\makeatother
+
+\title{Homework 2}
+\author{Zhehao Wang 404380075 (Dis 1D)}
+\date{Apr 10, 2016}
+
+\begin{document}
+\maketitle
+
+\begin{description}
+
+\item[1]{Number of inversions for any permutation}
+
+  
+
+\item[2]{Number of intersection and inversions}
+
+  
+
+\item[3]{Celebrity iterative}
+
+  
+
+\item[4]{Diameter of tree}
+  
+  (a)
+
+  Define the \textbf{height} of a rooted directed tree as the number of edges on the longest path from the root to a leaf. Algorithm is given in Alg \ref{alg:tree-diameter-recursive}.
+
+  \begin{algorithm}[h]
+  \caption{Diameter of a rooted directed tree's underlying undirected tree, recursive}
+  \label{alg:tree-diameter-recursive}
+    \begin{algorithmic}[1]
+    \Function{findHeightOrDiameter}{root, findHeight, prevRoot}
+      \If {$degree(root) = 1$}
+        \State \Return $0$
+      \EndIf
+      \State $heights \gets []$
+      \For {\textbf{each} $\{ n | n \in V, (n, root) \in E, n \neq prevRoot\}$}
+        \State $heights.push(1 + findHeightOrDiameter(n, true, root))$
+      \EndFor
+      \If {$findHeight$}
+        \State \Return $max(heights)$
+      \Else
+        \State \Return $max(heights) + 2^{nd}highest(heights)$
+      \EndIf
+    \EndFunction
+    \end{algorithmic}
+  \end{algorithm}
+
+  This recursive algorithm takes in the root of a tree and produces the height of the tree, by each time removing the root and finding the maximum height among all resulting sub trees. The diameter of the tree would be the sum of the heights of two highest subtrees. Initial call to the algorithm should look like $findHeightOrDiameter(root, false, nil)$. This algorithm is $O(n)$, where $n$ is the number of nodes in the tree, because each node in the tree will be visited exactly once.
+
+  (b)
+
+  The iterative version of the algorithm is given in Alg \ref{alg:tree-diameter-iterative}.
+
+  \begin{algorithm}[h]
+  \caption{Diameter of a rooted directed tree's underlying undirected tree, iterative}
+  \label{alg:tree-diameter-iterative}
+    \begin{algorithmic}[1]
+    \Function{findHeightOrDiameter}{root}
+      \State $queue \gets [root]$
+      \State $height0 \gets 0$
+      \State $height1 \gets 0$
+      \While {True}
+        \State $nodeCount \gets queue.size()$
+        \If {$nodeCount = 0$}
+          \State \Return $height0 + height1$
+        \EndIf
+        \State $height \gets height + 1$
+        \While {$nodeCount > 0$}
+          \State $r \gets queue.dequeue()$
+          \State $r.visited \gets true$
+          \If {$degree(r)=1$}
+            \If {$height > height0$}
+              \State $height0 \gets height$
+              \State $height1 \gets height0$
+            \ElsIf {$height > height1$}
+              \State $height1 \gets height$
+            \EndIf
+          \Else
+            \For {\textbf{each} $ \{n | n \in V, (n, r) \in E, n.visited = false\}$}
+              \State $queue.enqueue(n)$
+            \EndFor
+          \EndIf
+          \State $nodeCount \gets nodeCount - 1$
+        \EndWhile
+      \EndWhile
+    \EndFunction
+    \end{algorithmic}
+  \end{algorithm}
+
+  This algorithm is $O(n)$, where $n$ is the number of nodes in the tree, because each node in the tree will be visited exactly once.
+
+\end{description}
+
+\end{document}
