@@ -82,7 +82,7 @@
 
   (b)
 
-  Given the conclusion in 1, permutations do not cause the number of inversions to change, this algorithm uses one list as the standard, takes in the other list, and calculates its number of inversions when compared against the standard.
+  Given the conclusion in 1, permutations do not cause the number of inversions to change, this algorithm uses one list as the standard, takes in the other list, and calculates its number of inversions when compared against the standard. The algorithm's given in alg. \ref{alg:number-of-inversions-mergesort}.
   
   \begin{algorithm}[h]
   \caption{Number of inversions for one list against a permutated standard}
@@ -105,7 +105,7 @@
       \State $n \gets len(l1)$
       \State $pos \gets 0$
 
-      \While {$l1.hasNext()$ or $l2.hasNext()$}
+      \While {$l1.hasNext() \vee l2.hasNext()$}
         \If {$l1.hasNext() = false$}
           \State $original[pos] \gets l2.next()$
         \ElsIf {$l2.hasNext() = false$}
@@ -133,7 +133,52 @@
 
 \item[3]{Celebrity iterative}
 
-  
+  Given an incident matrix representation of the graph, the algorithm's given in alg. \ref{alg:celebrity-iterative}. The algorithm takes in an $n \times n$ incident matrix (whose \textit{len}, number of persons, is $n$; and $matrix[i][j] = 1$ means person $i$ knows person $j$), and returns the index of the celebrity if there's one, otherwise returns -1. Matrix with less than two persons is considered to not have celebrities.
+
+  \begin{algorithm}[h]
+  \caption{Celebrity iterative}
+  \label{alg:celebrity-iterative}
+    \begin{algorithmic}[1]
+    \Function{hasCelebrity}{matrix}
+      \State $l \gets len(matrix)$
+      \If $l < 2$
+        \Return $-1$
+      \EndIf
+      \State $i \gets 0$
+      \State $j \gets 1$
+
+      \While $max(i, j) \leq l$
+        \If {$matrix[i][j] = 1 \wedge matrix[j][i] = 0$}
+          \State $i \gets max(i,j) + 1$
+        \ElsIf {$matrix[j][i] = 1 \wedge matrix[i][j] = 0$}
+          \State $j \gets max(i,j) + 1$
+        \Else
+          \State $i \gets max(i,j) + 1$
+          \State $j \gets max(i,j) + 1$
+        \EndIf
+      \EndWhile
+
+      \If {$i > l$}
+        \State \Return $isCelebrity(matrix, j)$
+      \Else
+        \State \Return $isCelebrity(matrix, i)$
+      \EndIf
+    \EndFunction
+
+    \Function{isCelebrity}{matrix, i}
+      \For {person $p$ in matrix, $p \neq i$}
+        \If {$matrix[p][i] = 0 \vee matrix[i][p] = 1$}
+          \State \Return $-1$
+        \EndIf
+      \EndFor
+      \State \Return $i$
+    \EndFunction
+    \end{algorithmic}
+  \end{algorithm}
+
+  \textbf{Time complexity:} this algorithm is $O(n)$, where $n$ is the number of persons.
+
+  \textbf{Correctness:}
 
 \item[4]{Diameter of tree}
   
