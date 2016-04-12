@@ -21,7 +21,7 @@
 \def\BState{\State\hskip-\ALG@thistlm}
 \makeatother
 
-\title{Homework 2}
+\title{CS180 Homework 2}
 \author{Zhehao Wang 404380075 (Dis 1B)}
 \date{Apr 10, 2016}
 
@@ -32,15 +32,15 @@
 
 \item[1]{Number of inversions remains unchanged for any permutation}
   
-  \textbf{Proof by induction on the number of position swaps in the permutation:} we denote the original lists as $A = {a_1...a_n}$ and $B = {b_1...b_n}$. Each permutation consists of a number of position swaps for songs in both list A and B. We call a pair $(a_i, a_j)$ \textit{flipped} if it used to be $(a_i, a_j)$ before the permutation, and becomes $(a_j, a_i)$ after the permutation, and the songs $a_i$, $a_j$ to be \textit{involved} in the flip.
+  \textbf{Proof by induction on the number of pair swaps in the permutation:} we denote the original lists as $A = {a_1...a_n}$ and $B = {b_1...b_n}$. Each permutation consists of a number of pair swaps for songs in both list A and B. We call a pair $(a_i, a_j)$ \textit{flipped} if it used to be $(a_i, a_j)$ before the permutation, and becomes $(a_j, a_i)$ after the permutation, and the songs $a_i$, $a_j$ to be \textit{involved} in the flip.
 
-  \textbf{Base case:} consider the case where only one pair of songs in both A and B have their positions swapped. Denote the pair as $(a_i, a_j)$ in the original list A, and $(b_m, b_n)$ in the original list B, we have $i < j$, $m < n$, $a_i = b_m$ and $a_j = b_n$. 
+  \textbf{Base case:} consider the case where only one pair in both A and B is swapped in the permutation. Denote the pair as $(a_i, a_j)$ in the original list A, where $i < j$. We can find the same songs in B where $a_i = b_m$ and $a_j = b_n$. The sequence in B could be $(b_m, b_n)$, or $(b_n, b_m)$. Consider the $(b_m, b_n)$ where $m < n$ case first:
 
-  The \textit{flipped} pairs in A caused by this permutation include: $(a_i, a_j)$, $(a_p, a_j)$ and $(a_i, a_p)$, where $i < p < j$. Similarly, \textit{flipped} pair in B include: $(b_m, b_n)$, $(b_q, b_n)$ and $(b_m, b_q)$, where $m < q < n$. Since $a_i = b_m$ and $a_j = b_n$, number of inversions is not changed by A and B both having the $(a_i, a_j)$, $(b_m, b_n)$ flips. Thus we consider each $a_p$ and $b_q$ \textit{involved} in the flip, and the total number of inversions does not change if each \textit{involved} $a_p$ and $b_q$ do not cause changes in the number of inversions. Case analysis on the position of each $b_l$ in B where each $b_l = a_p$.
+  The \textit{flipped} pairs in A caused by this permutation include: $(a_i, a_j)$, $(a_p, a_j)$ and $(a_i, a_p)$, where $i < p < j$. Similarly, \textit{flipped} pair in B include: $(b_m, b_n)$, $(b_q, b_n)$ and $(b_m, b_q)$, where $m < q < n$. Since $a_i = b_m$ and $a_j = b_n$, number of inversions is not changed by A and B both having the $(a_i, a_j)$, $(b_m, b_n)$ flips. Thus we consider each $a_p$ and $b_q$ \textit{involved} in the flip, and the total number of inversions does not change if each \textit{involved} $a_p$ and $b_q$ do not cause changes in the total number of inversions. Case analysis on the position of each $b_l$ in B where each $b_l = a_p$.
   
   \begin{itemize}
   \item
-  If $l < m$, then list B used to have $(b_l, b_m)$ and $(b_l, b_n)$, list A used to have $(a_i, a_p)$ and $(a_p, a_j)$, number of inversions used to be 1. After the permutation, B's pairs involving $b_l, b_m, b_n$ are not flipped, and A has $(a_p, a_i)$, $(a_j, a_p)$. Number of inversions is still 1.
+  If $l < m$, then list B used to have $(b_l, b_m)$ and $(b_l, b_n)$, list A used to have $(a_i, a_p)$ and $(a_p, a_j)$, number of inversions used to be 1. After the permutation, B still has $(b_l, b_m)$ and $(b_l, b_n)$, and A has $(a_p, a_i)$, $(a_j, a_p)$. Number of inversions is still 1.
 
   \item
   If $l > n$, the case is similar with above. The number of inversions before and after the permutation are both 1.
@@ -49,9 +49,11 @@
   If $m < l < n$, then B used to have $(b_m, b_l)$ and $(b_l, b_n)$, A used to have $(a_i, a_p)$ and $(a_p, a_j)$, and number of inversions used to be 0. After the permutation, B has $(b_l, b_m)$ and $(b_n, b_l)$, A has $(a_p, a_i)$ and $(a_j, a_p)$. The number of inversions is still 0.
   \end{itemize}
 
-  Similar case analysis can be done for each $a_k$ in list A where each $a_k = b_q$. Thus we have the number of inversions does not change when only one pair is swapped in the permutation.
+  Similar case analysis can be done for each $a_k$ in list A where each $a_k = b_q$. We have the number of inversions does not change when B's sequence is $(b_m, b_n)$. 
 
-  \textbf{Induction case:} assume that the conclusion holds for any permutation involving $n$ position swaps. For any permutation involving $n+1$ position swaps, by the induction hypothesis, we know that the conclusion holds for its sub-permutation with one pair excluded. By applying the analysis of the base case on the results of the sub-permutation, we know that the conclusion holds for any permutations involving $n+1$ position swaps as well.
+  Similar case analysis can be done when B's sequence is $(b_n, b_m)$, with the only difference being that in case 3 ($n < l < m$), the number of inversions before and after the permutation are both 2 instead of 0. Thus to summarize, we have the number of inversions does not change when only one pair is swapped in the permutation.
+
+  \textbf{Induction case:} assume that the conclusion holds for any permutation involving $n$ pair swaps. For any permutation involving $n+1$ pair swaps, by the induction hypothesis, we know that the conclusion holds for its sub-permutation with one pair excluded. By applying the analysis of the base case on the results of the sub-permutation, we know that the conclusion holds for any permutations involving $n+1$ pair swaps as well.
   
 
 \item[2]{Number of intersection and inversions}
