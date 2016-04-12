@@ -60,16 +60,16 @@
 
   (a)
 
-  \textbf{Proof:} an inversion if defined by a pair $(i, j)$ such that $q_i$ is before $q_j$ in list $q$, but $p_j$ is before $p_i$ in list $p$. 
+  \textbf{Proof:} an inversion is defined by a pair $(i, j)$ such that $q_i$ is before $q_j$ in list $q$, but $p_i$ is after $p_j$ in list $p$. 
 
-  For each pair $(i, j)$, consider the sequences of $p_i, p_j$ and $q_i, q_j$, and the lines $(p_i, q_i), (p_j, q_j)$. 
+  For each pair $(i, j)$, consider the sequences of $p_i, p_j$ and $q_i, q_j$, and the lines from $p_i$ to $q_i$, and from $p_j$ to $q_j$. 
 
   \begin{itemize}
   \item
-  If there's an intersection between the two lines, the sequences of $p_i, p_j$ and $q_i, q_j$ have to be different in list $q$ and $p$, as illustrated in figure \ref{fig:pb2}. Thus for each intersection, there is at least one corresponding inversion. Number of inversions $\geq$ Number of intersections.
+  If there's an intersection between the two lines, the sequences of $p_i, p_j$ and $q_i, q_j$ have to be different in lists $q$ and $p$, as illustrated in figure \ref{fig:pb2}. Thus for each intersection, there is at least one corresponding inversion. Total number of inversions $\geq$ Total number of intersections.
 
   \item
-  If the sequences of $p_i, p_j$ and $q_i, q_j$ are different in list $q$ and $p$, there has to be an intersection between the lines $(p_i, q_i)$and $(p_j, q_j)$, as illustrated in figure \ref{fig:pb2}. Thus for each inversion, there is at least one corresponding intersection. Number of intersections $\geq$ Number of inversions.
+  If the sequences of $p_i, p_j$ and $q_i, q_j$ are different in list $q$ and $p$, there has to be an intersection between the lines $(p_i, q_i)$and $(p_j, q_j)$, as illustrated in figure \ref{fig:pb2}. Thus for each inversion, there is at least one corresponding intersection. Total number of intersections $\geq$ Total number of inversions.
 
   \end{itemize}
 
@@ -80,11 +80,11 @@
   \label{fig:pb2}
   \end{figure}
 
-  Summarizing the two cases, we have the number of intersections $ = $ number of inversions for each pair $(i,j)$, thus the theorem holds. 
+  Summarizing the two cases, we have Total number of intersections $ = $ Total number of inversions, thus the theorem holds. 
 
   (b)
 
-  Given the conclusion in 1, permutations do not cause the number of inversions to change, this algorithm uses one list as the standard, takes in the other list, and calculates its number of inversions when compared against the standard. The algorithm's given in alg. \ref{alg:number-of-inversions-mergesort}.
+  Given the conclusion in Problem 1, permutations do not cause the number of inversions to change, this algorithm uses one list as the standard, takes in the other list, and calculates its number of inversions when compared against the standard. The algorithm's given in alg. \ref{alg:number-of-inversions-mergesort}.
   
   \begin{algorithm}[h]
   \caption{Number of inversions for one list against a permutated standard}
@@ -129,13 +129,17 @@
     \end{algorithmic}
   \end{algorithm}
   
-  \textbf{Time complexity:} this algorithm adds a constant-time inversion count to a recursive merge sort, thus the complexity is $O(n\log n)$
+  \textbf{Time complexity:} this algorithm adds a constant-time inversion count to a recursive merge sort, thus the complexity is the same as merge sort, which is $O(n\log n)$. In other words, the above described algorithm satisfies $T(n) = 2 \cdot T(\frac{n}{2}) + n$, by Master Theorem case 2, we have $T(n) = O(n\log{n})$.
 
-  \textbf{Correctness:} 
+  \textbf{Correctness:} this algorithm takes over after both arrays are permutated, such that one array is sorted and considered a standard array, and the other array is given as input for counting the number of inversions. 
+
+  This algorithm uses divide and conquer: each time we split the input array into two, if we assume the two sub arrays are sorted and already have their number of inversions counted, the number of inversions of the merged array is the sum of the number of inversions of the two sub arrays, plus the number of inversions introduced by the merge, which is $\sum_{i=1}^{n}{a_i}$, where $n$ is the number of elements in the right array, and $a_i$ is the left array's number of elements that are to the right of the $i^th$ element in the right array, if that element were to be inserted in the left array.
 
 \item[3]{Celebrity iterative}
 
-  Given an incident matrix representation of the graph, the algorithm's given in alg. \ref{alg:celebrity-iterative}. The algorithm takes in an $n \times n$ incident matrix (whose \textit{len}, number of persons, is $n$; and $matrix[i][j] = 1$ means person $i$ knows person $j$), and returns the index of the celebrity if there's one, otherwise returns -1. Matrix with less than two persons is considered to not have celebrities.
+  Given an incident matrix representation of the graph, the algorithm's given in alg. \ref{alg:celebrity-iterative}. The algorithm takes in an $n \times n$ incident matrix (whose \textit{len} is defined as $n$; and $matrix[i][j] = 1$ means person $i$ knows person $j$), and returns the index of the celebrity if there's one, otherwise returns $-1$. Matrix with less than two persons is considered to not have celebrities.
+
+  (Minor detail: the following algorithm assumes incident matrix index starts from 0)
 
   \begin{algorithm}[h]
   \caption{Celebrity iterative}
@@ -149,7 +153,7 @@
       \State $i \gets 0$
       \State $j \gets 1$
 
-      \While $max(i, j) \leq l$
+      \While $max(i, j) < l$
         \If {$matrix[i][j] = 1 \wedge matrix[j][i] = 0$}
           \State $i \gets max(i,j) + 1$
         \ElsIf {$matrix[j][i] = 1 \wedge matrix[i][j] = 0$}
@@ -160,7 +164,11 @@
         \EndIf
       \EndWhile
 
-      \If {$i > l$}
+      \If {$min(i, j) >= l$}
+        \State \Return $-1$
+      \EndIf
+
+      \If {$i \geq l$}
         \State \Return $isCelebrity(matrix, j)$
       \Else
         \State \Return $isCelebrity(matrix, i)$
@@ -178,9 +186,9 @@
     \end{algorithmic}
   \end{algorithm}
 
-  \textbf{Time complexity:} this algorithm is $O(n)$, where $n$ is the number of persons.
+  \textbf{Time complexity:} this algorithm is $O(n)$, where $n$ is the number of persons. In each execution of while, we get rid of at least one person from an arbitrary pair. So the loop's executed at most $n$ times, and each time it executes a constant number of operations. The check for whether the last remaining person is a celebrity or not is also $O(n)$, so the overall algorithm is $O(n)$.
 
-  \textbf{Correctness:}
+  \textbf{Correctness:} as discussed in class, there is at most one celebrity in a group of people. So each time the algorithm takes a pair of persons, see if they know each other, and remove the one that's definitely not a celebrity (or remove both if neither is a celebrity), and move on until there's only one person left. We then check if that person is a celebrity and returns the result.
 
 \item[4]{Diameter of tree}
   
