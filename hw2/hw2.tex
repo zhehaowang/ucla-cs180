@@ -309,7 +309,7 @@
     Path $(s,e)$ and path $(r,n)$ share a path $(a,b)$. Assume that $a$ being closer to $s$, and $b$ being $e$. We have $d(a,n) \geq d(a,e)$, $d(a,n) \geq d(a,s)$, $d(b,n) \geq d(b,e)$, $d(b,n) \geq d(b,s)$. Thus in case of $a$ being closer to $n$ than $b$ is, we have $D = d(s,e) = d(s,a) + d(a,b) + d(b,e) \leq d(n,a) + d(a,b) + d(b,e) = d(n,e)$; otherwise we have $D = d(s,e) = d(s,a) + d(a,b) + d(b,e) \leq d(s,a) + d(a,b) + d(b,n) = d(n,s)$. Then we can always find the diameter starting from $n$.
   \end{itemize}
 
-  Summarizing both cases, we prove that we can always find the diameter starting from the last node dequeued by BFS starting from any node.
+  Summarizing both cases, we prove that we can always find the diameter starting from the last node dequeued by BFS started from any node.
 
   \textbf{Time complexity:} this algorithm is $O(n)$, where $n$ is the number of nodes in the tree, because this algorithm first does BFS which is $O(n)$, then resets the visited flag which is $O(n)$, and finally does \textit{findHeight}, which is also $O(n)$ per the analysis in the previous homework.
 
