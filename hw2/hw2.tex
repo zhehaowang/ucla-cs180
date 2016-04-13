@@ -51,22 +51,20 @@
   If $m < l < n$, then B used to have $(b_m, b_l)$ and $(b_l, b_n)$, A used to have $(a_i, a_p)$ and $(a_p, a_j)$, and number of inversions used to be 0. After the permutation, B has $(b_l, b_m)$ and $(b_n, b_l)$, A has $(a_p, a_i)$ and $(a_j, a_p)$. The number of inversions is still 0.
   \end{itemize}
 
-  Similarly for each $b_q$, we find a corresponding $a_k$ where $a_k = b_q$, and do case analysis on the position of $a_k$. 
+  Similarly for each $b_q$, we find a corresponding $a_k$ where $a_k = b_q$, and do case analysis on the position of $a_k$ to reach similar conclusions.
 
   Summarizing both cases, we have the total number of inversions remains the same when A swaps $(a_i, a_j)$ and B's original sequence is $(b_m, b_n)$.
 
   Similar case analysis can be done when B's original sequence is $(b_n, b_m)$, with the only difference being that in case 3 ($n < l < m$), the number of inversions before and after the permutation are both 2 instead of 0. Thus to summarize, we have the number of inversions does not change when only one pair is swapped in the permutation.
 
-  \textbf{Induction case:} assume that the conclusion holds for any permutation involving $n$ pair swaps. For any permutation involving $n+1$ pair swaps, by the induction hypothesis, we know that the conclusion holds for its sub-permutation with one pair excluded. By applying the analysis of the base case on the results of the sub-permutation, we know that the conclusion holds for any permutations involving $n+1$ pair swaps as well.
+  \textbf{Induction case:} assume that the conclusion holds for any permutation involving $n$ pair swaps. For any permutation involving $n+1$ pair swaps, by the induction hypothesis, we know that the conclusion holds for its sub-permutation with one pair not swapped. By applying the analysis of the base case on the results of the sub-permutation, we know that the conclusion holds for any permutations involving $n+1$ pair swaps as well.
   
 
 \item[2]{Number of intersection and inversions}
 
   (a)
 
-  \textbf{Proof:} an inversion is defined by a pair $(i, j)$ such that $q_i$ is before $q_j$ in list $q$, but $p_i$ is after $p_j$ in list $p$. 
-
-  For each pair $(i, j)$, consider the sequences of $p_i, p_j$ and $q_i, q_j$, and the lines from $p_i$ to $q_i$, and from $p_j$ to $q_j$. 
+  \textbf{Proof:} an inversion is defined by a pair $(i, j)$ such that $q_i$ is before $q_j$ in list $q$, but $p_i$ is after $p_j$ in list $p$. For each pair $(i, j)$, consider the sequences of $p_i, p_j$ and $q_i, q_j$, and the lines from $p_i$ to $q_i$ and from $p_j$ to $q_j$. 
 
   \begin{itemize}
   \item
@@ -88,7 +86,7 @@
 
   (b)
 
-  Given the conclusion in Problem 1, permutations do not cause the number of inversions to change, this algorithm uses one list as the standard, takes in the other list, and calculates its number of inversions when compared against the standard. The algorithm's given in alg. \ref{alg:number-of-inversions-mergesort}.
+  Given the conclusion in Problem 1, permutations do not cause the number of inversions to change, this algorithm uses one list as the sorted standard, takes in the other list, and calculates its number of inversions when compared against the standard. The algorithm's given in alg. \ref{alg:number-of-inversions-mergesort}.
   
   \begin{algorithm}[h]
   \caption{Number of inversions for one list against a permutated standard}
@@ -135,13 +133,11 @@
   
   \textbf{Time complexity:} this algorithm adds a constant-time inversion count to a recursive merge sort, thus the complexity is the same as merge sort, which is $O(n\log n)$. In other words, the above described algorithm satisfies $T(n) = 2 \cdot T(\frac{n}{2}) + n$, by Master Theorem case 2, we have $T(n) = O(n\log{n})$.
 
-  \textbf{Correctness:} this algorithm takes over after both arrays are permutated, such that one array is sorted and considered a standard array, and the other array is given as input for counting the number of inversions. 
-
-  This algorithm uses divide and conquer: each time we split the input array into two, if we assume the two sub arrays are sorted and already have their number of inversions counted, the number of inversions of the merged array is the sum of the number of inversions of the two sub arrays, plus the number of inversions introduced by the merge, which is $\sum_{i=1}^{n}{a_i}$, where $n$ is the number of elements in the right array, and $a_i$ is the left array's number of elements that are to the right of the $i^th$ element in the right array, if that element were to be inserted in the left array.
+  \textbf{Correctness:} this algorithm uses divide and conquer: each time we split the input array into two, if we assume the two sub arrays are sorted and already have their number of inversions counted, the number of inversions of the merged array is the sum of the number of inversions of the two sub arrays, plus the number of inversions introduced by the merge, which is $\sum_{i=1}^{n}{a_i}$, where $n$ is the number of elements in the right array, and $a_i$ is the left array's number of elements that are to the right of the $i^{th}$ element in the right array, if that element were to be inserted in the left array.
 
 \item[3]{Celebrity iterative}
 
-  Given an incident matrix representation of the graph, the algorithm's given in alg. \ref{alg:celebrity-iterative}. The algorithm takes in an $n \times n$ incident matrix (whose \textit{len} is defined as $n$; and $matrix[i][j] = 1$ means person $i$ knows person $j$), and returns the index of the celebrity if there's one, otherwise returns $-1$. Matrix with less than two persons is considered to not have celebrities.
+  The algorithm's described in alg \ref{alg:celebrity-iterative}. It takes in an $n \times n$ incident matrix (whose \textit{len} is defined as $n$; and $matrix[i][j] = 1$ means person $i$ knows person $j$), and returns the index of the celebrity if there's one, otherwise returns $-1$. Matrix with less than two persons is considered to not have celebrities.
 
   (Minor detail: the following algorithm assumes incident matrix index starts from 0)
 
@@ -192,7 +188,7 @@
 
   \textbf{Time complexity:} this algorithm is $O(n)$, where $n$ is the number of persons. In each execution of while, we get rid of at least one person from an arbitrary pair. So the loop's executed at most $n$ times, and each time it executes a constant number of operations. The check for whether the last remaining person is a celebrity or not is also $O(n)$, so the overall algorithm is $O(n)$.
 
-  \textbf{Correctness:} as discussed in class, there is at most one celebrity in a group of people. So each time the algorithm takes a pair of persons, see if they know each other, and remove the one that's definitely not a celebrity (or remove both if neither is a celebrity), and move on until there's only one person left. We then check if that person is a celebrity and returns the result.
+  \textbf{Correctness:} as discussed in class, there is at most one celebrity in a group of people. So each time the algorithm takes a pair of persons, see if they know each other, and remove the one that's definitely not a celebrity (or remove both if neither is a celebrity), and move on until there's only one person left. We then check if that person is a celebrity and return the result.
 
 \item[4]{Diameter of tree}
   
@@ -244,13 +240,13 @@
     \end{algorithmic}
   \end{algorithm}
 
-  \textbf{Correctness:} starting from the root in the tree, diameter is the maximum among the diameters of its sub-trees, and the sum of heights of its two highest sub-trees plus two. Assuming the diameters of its sub-trees are already found, we combine this algorithm with \textit{tree-height} algorithm from last homework, and produce the largest among these values as the diameter of the tree.
+  \textbf{Correctness:} starting from the root in the tree, diameter is the maximum among the diameters of its sub-trees (defined as a number of disconnected rooted trees after the orgiginal tree's root's removed), and the sum of heights of its two highest sub-trees plus two. Assuming the diameters of its sub-trees are already found, we combine this algorithm with \textit{tree-height} algorithm from last homework, and produce the largest among these values as the diameter of the tree.
 
-  \textbf{Time complexity:} this algorithm is $O(n\log{n})$, where $n$ is the number of nodes in the tree. This algorithm satisfies $T(n, i) = \sum_{i' | (root, i') \in E}{T(n', i')} + n$, where $n$ is the number of nodes that are lower than node $i$, and $n'$ is the number of nodes that are lower than node $i'$. The $+n$ comes from the cost of \textit{findHeight}, which gets called each time we recursively call \textit{findDiameter}. For simplicity, assuming it's a full tree with fanout $k$, we have $T(n) = k \cdot \sum_{T(\frac{n}{k})} + n$. And by Master Theorem case 2, this algorithm is $O(n\log{n})$.
+  \textbf{Time complexity:} this algorithm is $O(n\log{n})$, where $n$ is the number of nodes in the tree. This algorithm satisfies $T(n, i) = \sum_{i' | (root, i') \in E}{T(n', i')} + n$, where $n$ is the number of nodes that are lower than node $i$, and $n'$ is the number of nodes that are lower than node $i'$. The $+n$ comes from the cost of \textit{findHeight}, which gets called each time we recursively call \textit{findDiameter}. For simplicity, assuming it's a full tree with fanout $k$, we have $T(n) = k \cdot \sum{T(\frac{n}{k})} + n$. And by Master Theorem case 2, this algorithm is $O(n\log{n})$.
 
   (b)
 
-  The iterative version of the algorithm is given in alg \ref{alg:tree-diameter-iterative}. Starting from a given root, this algorithm first does a BFS traversal. The last dequeued node is then used as a starting point for the same \textit{findHeight} algorithm used in part (a) and the previous homework.
+  The iterative version of the algorithm is given in alg \ref{alg:tree-diameter-iterative}. Starting from a given root, this algorithm first does a BFS traversal. The last dequeued node is then used as a starting point for the same \textit{findHeight} algorithm used in part (a) and the previous homework. And the result of \textit{findHeight} is the diameter of the tree.
 
   \begin{algorithm}[h]
   \caption{Diameter of a rooted directed tree's underlying undirected tree, iterative}
@@ -309,9 +305,9 @@
     Path $(s,e)$ and path $(r,n)$ share a path $(a,b)$. Assume that $a$ being closer to $s$, and $b$ being $e$. We have $d(a,n) \geq d(a,e)$, $d(a,n) \geq d(a,s)$, $d(b,n) \geq d(b,e)$, $d(b,n) \geq d(b,s)$. Thus in case of $a$ being closer to $n$ than $b$ is, we have $D = d(s,e) = d(s,a) + d(a,b) + d(b,e) \leq d(n,a) + d(a,b) + d(b,e) = d(n,e)$; otherwise we have $D = d(s,e) = d(s,a) + d(a,b) + d(b,e) \leq d(s,a) + d(a,b) + d(b,n) = d(n,s)$. Then we can always find the diameter starting from $n$.
   \end{itemize}
 
-  Summarizing both cases, we prove that we can always find the diameter starting from the last node dequeued by BFS started from any node.
+  Summarizing both cases, we prove that we can always find the diameter starting from the last node dequeued by BFS.
 
-  \textbf{Time complexity:} this algorithm is $O(n)$, where $n$ is the number of nodes in the tree, because this algorithm first does BFS which is $O(n)$, then resets the visited flag which is $O(n)$, and finally does \textit{findHeight}, which is also $O(n)$ per the analysis in the previous homework.
+  \textbf{Time complexity:} this algorithm is $O(n)$, where $n$ is the number of nodes in the tree. Because this algorithm first does BFS which is $O(n)$, then resets the visited flag which is $O(n)$, and finally does \textit{findHeight}, which is also $O(n)$ per the analysis in the previous homework.
 
 \end{description}
 
