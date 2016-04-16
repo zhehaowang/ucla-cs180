@@ -76,9 +76,9 @@
 
     \Function{getSCC}{G}
       \State $smallest\_node \gets nil$
-      \State $DFS(G.firstNode(), true, smallest\_node, G.nodes, [])$
-      \State $smallest\_node \gets smallest\_node.copy()$
+      \State $DFS(G.firstNode(), true, smallest\_node, G.nodes, [], nil)$
 
+      \State $smallest\_node\_copy \gets smallest\_node.copy()$
       \State $G.resetVisited()$
       \State $SCC\_graph \gets nil$
       \While {$G.node\_count > 0$}
@@ -95,13 +95,140 @@
     \end{algorithmic}
   \end{algorithm}
 
-  \textbf{Time complexity:}
+  \textbf{Time complexity:} $O(|E|)$
 
   \textbf{Correctness:}
 
 \item[2]{Longest path in DAG}
 
-  (a)
+  (a) algorithm is given in alg \ref{alg:longest-path-unweighted-dag}.
+
+  \begin{algorithm}[h]
+  \caption{Longest path in an unweighted DAG}
+  \label{alg:longest-path-unweighted-DAG}
+    \begin{algorithmic}[1]
+  
+    \Function{longestPath}{G}
+      \State $nodeCount \gets len(V)$
+      \State $sourceNodes \gets []$
+      \For {$\{i|i \in V\}$}
+        \If {$i.inDegree = 0$}
+          \State $sourceNodes.add(i)$
+        \EndIf
+      \EndFor
+      \State $length \gets 0$
+      \While {$nodeCount > 0$}
+        \State $newSourceNodes \gets []$
+        \For {$\{i|i \in sourceNodes\}$}
+          \For {$\{v|(v, i) \in E\}$}
+            \State $v.inDegree \gets v.inDegree - 1$
+            \If {$v.inDegree = 0$}
+              \State $newSourceNodes.add(v)$
+            \EndIf
+          \EndFor
+          \State $G.remove(i)$
+          \State $nodeCount \gets nodeCount - 1$
+        \EndFor
+        \State $sourceNodes \gets newSourceNodes$
+        \State $length \gets length + 1$
+      \EndWhile
+      \State \Return $length$
+    \EndFunction
+    
+    \end{algorithmic}
+  \end{algorithm}
+
+  \textbf{Time complexity:} this algorithm is $O(|E|)$.
+
+  \textbf{Correctness:} this algorithm does a similar thing as topological sort, except that it counts the steps needed to remove all the nodes, instead of labeling each removed nodes. The recursive idea is that length of longest path in a DAG $G$ is 1 + length of longest path in $G'$, where $G'$ is the remaining graph after all sources in $G$ are removed.
+
+  (b) algorithm is given in alg \ref{alg:longest-path-weighted-dag}. Similar with the idea of problem (a), we base the algorithm on topological sort. We associate a weight with each node, and each time the algorithm removes a source node $i$, the nodes $j$ that it connects to will have new weight $w(j) = max(w(j), weight(i,j) + w(i))$. The largest weight in the DAG will be returned as the length of the longest path.
+
+  \begin{algorithm}[h]
+  \caption{Longest path in a weighted DAG}
+  \label{alg:longest-path-weighted-DAG}
+    \begin{algorithmic}[1]
+  
+    \Function{longestPath}{G}
+      \State $nodeCount \gets len(V)$
+      \State $sourceNodes \gets []$
+      \For {$\{i|i \in V\}$}
+        \If {$i.inDegree = 0$}
+          \State $sourceNodes.add(i)$
+          \State $i.length \gets 0$
+        \EndIf
+      \EndFor
+      \State $maxLength \gets min\_real$
+      \While {$nodeCount > 0$}
+        \State $newSourceNodes \gets []$
+        \For {$\{i|i \in sourceNodes\}$}
+          \For {$\{v|(v, i) \in E\}$}
+            \State $v.inDegree \gets v.inDegree - 1$
+            \State $v.weight \gets max(v.weight, i.weight + w(v,i))$
+            \If {$maxLength < v.weight$}
+              \State {$maxLength \gets v.weight$}
+            \EndIf
+            \If {$v.inDegree = 0$}
+              \State $newSourceNodes.add(v)$
+            \EndIf
+          \EndFor
+          \State $G.remove(i)$
+          \State $nodeCount \gets nodeCount - 1$
+        \EndFor
+        \State $sourceNodes \gets newSourceNodes$
+      \EndWhile
+      \State \Return $maxLength$
+    \EndFunction
+    
+    \end{algorithmic}
+  \end{algorithm}
+
+  \textbf{Time complexity:} this algorithm is $O(|E|)$.
+
+  \textbf{Correctness:} 
+
+  (c) algorithm is given in alg \ref{alg:weighted-dag-job-scheduling}. Similar idea as in (b). 
+
+  \begin{algorithm}[h]
+  \caption{Weighted DAG job scheduling}
+  \label{alg:weighted-dag-job-scheduling}
+    \begin{algorithmic}[1]
+  
+    \Function{longestPath}{G}
+      \State $nodeCount \gets len(V)$
+      \State $sourceNodes \gets []$
+      \For {$\{i|i \in V\}$}
+        \If {$i.inDegree = 0$}
+          \State $sourceNodes.add(i)$
+          \State $i.length \gets 0$
+        \EndIf
+      \EndFor
+      \While {$nodeCount > 0$}
+        \State $newSourceNodes \gets []$
+        \For {$\{i|i \in sourceNodes\}$}
+          \For {$\{v|(v, i) \in E\}$}
+            \State $v.inDegree \gets v.inDegree - 1$
+            \State $v.weight \gets max(v.weight, i.weight + w(v,i))$
+            
+            \State $v.length$
+            \If {$v.inDegree = 0$}
+              \State $newSourceNodes.add(v)$
+            \EndIf
+          \EndFor
+          \State $G.remove(i)$
+          \State $nodeCount \gets nodeCount - 1$
+        \EndFor
+        \State $sourceNodes \gets newSourceNodes$
+      \EndWhile
+      \Return $sort(v.weight)$
+    \EndFunction
+    
+    \end{algorithmic}
+  \end{algorithm}
+
+  \textbf{Time complexity:} this algorithm is $O(max(|E|, |V| \log |V|))$.
+
+  \textbf{Correctness:} 
 
 \item[3]{Optimal order of files}
   
