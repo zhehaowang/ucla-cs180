@@ -1,0 +1,116 @@
+% Author: Zhehao Wang 404380075 zhehao@cs.ucla.edu
+
+% Grammar package: http://tex.stackexchange.com/questions/24886/which-package-can-be-used-to-write-bnf-grammars
+
+\documentclass{article}
+\topmargin = 0in
+\oddsidemargin = 0in
+\evensidemargin = \oddsidemargin
+\textwidth = 6.5in
+\textheight = 8in
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{syntax}
+\usepackage{graphicx}
+
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\makeatletter
+\def\BState{\State\hskip-\ALG@thistlm}
+\makeatother
+
+\title{CS180 Homework 3}
+\author{Zhehao Wang 404380075 (Dis 1B)}
+\date{Apr 16, 2016}
+
+\begin{document}
+\maketitle
+
+\begin{description}
+
+\item[1]{Strongly connected components in a directed graph}
+  
+  (a) Prove SCC graph is a DAG.
+
+  \textbf{Proof by contradiction:} assume that a path $s_i, ..., s_j, s_i$ exists in the SCC graph, where $s_k$ ($i \leq k \leq j$) are the newly created distinct SCC nodes.
+
+  There exists a path from any node $p_i$ in SCC $s_i$ to any node $p_{i+1}$ in SCC $s_{i+1}$, since there exists a node $q_i$ in SCC $s_i$ that has a directed edge to a node $q_{i+i}$ in SCC $s_{i+1}$, and there exists a path from $p_i$ to $q_i$, $q_{i+1}$ to $p_{i+1}$.
+
+  Applying the above conclusion repeatedly till we reach $s_j$, we have the conclusion there exists a path from any node $p_i$ in SCC $s_i$ to any node $p_j$ in SCC $s_j$. Similarly, we have there exists a path from any node $p_j$ in SCC $s_j$ to any node $p_i$ in $s_i$. Thus the nodes $p_i$ and $p_j$ should belong to the same SCC node which is the combination of SCC $s_i$ and $s_j$, and contradicts with the nodes being distinct in the assumption. And we have the directed SCC graph is acyclic, which makes it a DAG by definition.
+
+  (b) The algorithm is given in alg \ref{alg:scc-graph}.
+
+  \begin{algorithm}[h]
+  \caption{SCC building algorithm}
+  \label{alg:scc-graph}
+    \begin{algorithmic}[1]
+  
+    \Function{DFS}{v, do\_label, smallest\_node, node\_remaining, node\_removed, SCC\_graph}
+      \State $v.visited \gets true$
+      \If {$do\_label = false$}
+        \State $node\_remaining.remove(v)$
+        \State $node\_removed.add(v)$
+        \If {$v = smallest\_node$}
+          \State $smallest\_node \gets node\_remaining.nextSmallest()$
+        \EndIf
+      \EndIf
+      \For {$\{i | (v,i) \in E, i.visited = false\}$}
+        \If {$do\_label = true$}
+          \State $DFS(i, do\_label, smallest\_node, node\_remaining, node\_removed, SCC\_graph)$
+        \Else
+          \If {$i \in SCC\_graph$}
+            \State $SCC\_graph.addEdge(v,i)$
+          \Else
+            \State $DFS(i, do\_label, smallest\_node, node\_remaining, node\_removed, SCC\_graph)$
+          \EndIf
+        \EndIf
+      \EndFor
+      \If {$do\_label$}
+        \State $id \gets label(v)$
+        \If {$id < smallest\_node$}
+          \State $smallest\_node \gets v$
+        \EndIf
+      \EndIf
+    \EndFunction
+
+    \Function{getSCC}{G}
+      \State $smallest\_node \gets nil$
+      \State $DFS(G.firstNode(), true, smallest\_node, G.nodes, [])$
+      \State $smallest\_node \gets smallest\_node.copy()$
+
+      \State $G.resetVisited()$
+      \State $SCC\_graph \gets nil$
+      \While {$G.node\_count > 0$}
+        \State $G.resetVisited()$
+        \State $node\_removed \gets []$
+        \State $DFS(smallest\_node, false, smallest\_node\_copy, G.nodes, node\_removed, SCC\_graph)$
+        \State $smallest\_node \gets smallest\_node\_copy$
+        \State $SCC\_graph.addNode(node\_removed)$
+      \EndWhile
+
+      \State \Return $SCC\_graph$
+    \EndFunction
+    
+    \end{algorithmic}
+  \end{algorithm}
+
+  \textbf{Time complexity:}
+
+  \textbf{Correctness:}
+
+\item[2]{Longest path in DAG}
+
+  (a)
+
+\item[3]{Optimal order of files}
+  
+  
+
+\item[4]{Sorting from SC}
+  
+
+
+\end{description}
+
+\end{document}
