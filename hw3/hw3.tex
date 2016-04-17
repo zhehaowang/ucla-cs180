@@ -239,9 +239,9 @@
   \label{alg:optimal-order-of-files}
     \begin{algorithmic}[1]
   
-    \Function{longestPath}{G}
-      \For {${i|i \in files}$}
-        \State $weightedFiles.adds(i.probability \cdot i.length)$
+    \Function{optimalOrder}{files}
+      \For {$\{i|i \in files\}$}
+        \State $weightedFiles.add(i.probability \cdot i.length)$
       \EndFor
       \State \Return $sort(weightedFiles)$
     \EndFunction
@@ -274,7 +274,34 @@
 
 \item[4]{Sorting from SC}
   
+  Suppose that $SC$ takes in $n$ jobs, and each has its associated $p_i$ and $d_i$. $SC$ returns the optimal list of jobs. The sorting algorithm is described in alg \ref{alg:sorting-sc}.
 
+  \begin{algorithm}[h]
+  \caption{Sorting using SC}
+  \label{alg:sorting-sc}
+    \begin{algorithmic}[1]
+  
+    \Function{sort}{array}
+      \State $jobs.deadlines \gets array$
+      \State $jobs.processingTimes \gets array$
+      \State $jobs \gets SC(jobs)$
+      \State \Return $jobs.deadlines$
+    \EndFunction
+    
+    \end{algorithmic}
+  \end{algorithm}
+
+  \textbf{Time complexity:} SC is $o(n \log n)$, and other calls are $O(1)$, so the overall $sort$ is $o(n \log n)$.
+
+  \textbf{Correctness:} suppose that the algorithm gives back an array $S=d_1...d_n$, we want to prove for each $i<j$, $d_i \leq d_j$.
+
+  We start by proving that the first element $d_1$ is a smallest element. 
+
+  Suppose we have a smallest element $d_k$ in $S$, $d_k \leq d_i, 1 \leq i \leq n$. Let the total lateness of $S$ be $t(S)$. Consider the sequence $S'$ with $d_k$ and $d_{k-1}$ swapped, its difference in lateness with $t(S)$ is $t(S) - t(S') = \sigma_{i=1}^{k-1}{d_i} - \sigma_{i=1}^{k-2}{d_i} - d_k = d_{k-1} - d{k} \geq 0$, and we have $t(S) \geq t(S')$. Since $t(S)$ is given back by $SC$, and satisfies $t(S) \leq t(S_i)$, where $S_i$ is any schedule, we have $t(S) = t(S')$ and $d_{k-1} = d{k}$. 
+
+  Similarly, starting from $S'$, we repeatedly switch $d_k$ with its previous element, and can prove $d_1 =...= d_{k-1} = d_k$. Thus $d_1$ is a smallest element.
+
+  Consider the array $S_1$ with $d_1$ removed, using the above described process we can prove that $d_2$ is a smallest element in $S_1$. We continue until the array $S$ is exhausted, and we have for each $i<j$, $d_i \leq d_j$.
 
 \end{description}
 
