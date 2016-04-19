@@ -120,7 +120,7 @@
       \While {$nodeCount > 0$}
         \State $newSourceNodes \gets []$
         \For {$\{i|i \in sourceNodes\}$}
-          \For {$\{v|(v, i) \in E\}$}
+          \For {$\{v|(i, v) \in E\}$}
             \State $v.inDegree \gets v.inDegree - 1$
             \If {$v.inDegree = 0$}
               \State $newSourceNodes.add(v)$
@@ -162,7 +162,7 @@
       \While {$nodeCount > 0$}
         \State $newSourceNodes \gets []$
         \For {$\{i|i \in sourceNodes\}$}
-          \For {$\{v|(v, i) \in E\}$}
+          \For {$\{v|(i, v) \in E\}$}
             \State $v.inDegree \gets v.inDegree - 1$
             \State $v.weight \gets max(v.weight, i.weight + w(v,i))$
             \If {$maxLength < v.weight$}
@@ -200,17 +200,16 @@
       \For {$\{i|i \in V\}$}
         \If {$i.inDegree = 0$}
           \State $sourceNodes.add(i)$
-          \State $i.length \gets 0$
+          \State $i.weight \gets 0$
         \EndIf
       \EndFor
       \While {$nodeCount > 0$}
         \State $newSourceNodes \gets []$
         \For {$\{i|i \in sourceNodes\}$}
-          \For {$\{v|(v, i) \in E\}$}
+          \For {$\{v|(i, v) \in E\}$}
             \State $v.inDegree \gets v.inDegree - 1$
-            \State $v.weight \gets max(v.weight, i.weight + w(v,i))$
+            \State $v.weight \gets max(v.weight, i.weight + w(i,v))$
             
-            \State $v.length$
             \If {$v.inDegree = 0$}
               \State $newSourceNodes.add(v)$
             \EndIf
@@ -232,7 +231,7 @@
 
 \item[3]{Optimal order of files}
   
-  Algorithm is given in alg \ref{alg:optimal-order-of-files}, which is a greedy algorithm that orders files as $f_{t_1}...f_{t_n}$, such that for each $t_i > t_j$, $l_{t_i} \cot p_{t_i} \leq l_{t_j} \cot p_{t_j}$.
+  Algorithm is given in alg \ref{alg:optimal-order-of-files}, which is a greedy algorithm that orders files as $f_{t_1}...f_{t_n}$, such that for each $t_i > t_j$, $\frac{p_{t_i}}{l_{t_i}} \geq \frac{p_{t_j}}{l_{t_j}}$.
 
   \begin{algorithm}[h]
   \caption{Optimal order of files}
@@ -240,8 +239,9 @@
     \begin{algorithmic}[1]
   
     \Function{optimalOrder}{files}
+      \State $weightedFiles \gets []$
       \For {$\{i|i \in files\}$}
-        \State $weightedFiles.add(i.probability \cdot i.length)$
+        \State $weightedFiles.add(\frac{p_i}{l_i})$
       \EndFor
       \State \Return $sort(weightedFiles)$
     \EndFunction
@@ -253,7 +253,7 @@
 
   \textbf{Correctness:} proof by the algorithm's greedy choice property and optimal substructure property.
 
-  \textbf{Greedy choice property:} there exists an optimal solution $S=f_{t_1}...f_{t_n}$, such that $l_{t_1} \cot p_{t_1}$ is the largest among all jobs.
+  \textbf{Greedy choice property:} there exists an optimal solution $S=f_{t_1}...f_{t_n}$, such that $\frac{p_{t_1}}{l_{t_1}}$ is the largest among all jobs.
 
   % The assumed optimal solution takes a specific form, is this Ok in the proof; if not, is Ang's proof for maximum contatenation correct in dis 3? The idea of that one is bubble sorting, should be better described in the notes as well
   Proof: suppose $S'$ is an optimal solution with the sequence $f_{t'_1}f_{t'_2}...f_{t_{k-1}}f_{t_1}f_{t_{k+1}}...f_{t_n}$ where $t'_1 \neq t_1$. The average access time of $S'$ is 
@@ -262,9 +262,9 @@
 
   Consider the solution $S''$ with $f_{t_1}$ and $f_{t_{k-1}}$ swapped, the difference between average access time of $S''$ and that of $S'$ is
 
-  $$t(S') - t(S'') = p_{t_{k-1}} * l_{t_{k-1}} - p_{t_1} * l_{t_1} \geq 0$$
+  $$t(S') - t(S'') = p_{t_{1}} * l_{t_{k-1}} - p_{t_{k-1}} * l_{t_1} = (\frac{p_{t_1}}{l_{t_1}} - \frac{p_{t_{k-1}}}{l_{t_{k-1}}}) \cdot l_{t_1} \cdot l_{t_{k-1}} \geq 0$$
 
-  Similarly, starting from $t(S'')$, each time we swap $f_{t_1}$ with its previous file, we'll have a smaller or equal access time than before. Thus the optimal solution should contain $f_{t_1}$ as its first element, whose $l_{t_1} \cot p_{t_1}$ is the smallest.
+  Similarly, starting from $t(S'')$, each time we swap $f_{t_1}$ with its previous file, we'll have a smaller or equal access time than before. Thus the optimal solution should contain $f_{t_1}$ as its first element, whose $\frac{p_{t_1}}{l_{t_1}}$ is the largest.
 
   \textbf{Optimal substructure property:} let $S=f_{t_1}...f_{t_n}$ be an optimal solution, then $S_1=f_{t_2}...f_{t_n}$ is the optimal solution for the sub problem without $f_{t_1}$.
 
@@ -274,7 +274,7 @@
 
 \item[4]{Sorting from SC}
   
-  Suppose that $SC$ takes in $n$ jobs, and each has its associated $p_i$ and $d_i$. $SC$ returns the optimal list of jobs. The sorting algorithm is described in alg \ref{alg:sorting-sc}.
+  Suppose that $SC(p_i, d_i)$ takes in $n$ jobs, and each has a $p_i$ and $d_i$. $SC$ returns the optimal list of jobs, whose array of deadlines can be extracted by $jobs.deadlines$. The sorting algorithm is described in alg \ref{alg:sorting-sc}.
 
   \begin{algorithm}[h]
   \caption{Sorting using SC}
@@ -282,9 +282,7 @@
     \begin{algorithmic}[1]
   
     \Function{sort}{array}
-      \State $jobs.deadlines \gets array$
-      \State $jobs.processingTimes \gets array$
-      \State $jobs \gets SC(jobs)$
+      \State $jobs \gets SC(array, array)$
       \State \Return $jobs.deadlines$
     \EndFunction
     
