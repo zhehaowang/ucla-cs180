@@ -35,11 +35,13 @@
 
   \textbf{Proof by contradiction:} assume that a path $s_i, ..., s_j, s_i$ exists in the SCC graph, where $s_k$ ($i \leq k \leq j$) are the newly created distinct SCC nodes.
 
-  There exists a path from any node $p_i$ in SCC $s_i$ to any node $p_{i+1}$ in SCC $s_{i+1}$, since there exists a node $q_i$ in SCC $s_i$ that has a directed edge to a node $q_{i+i}$ in SCC $s_{i+1}$, and there exists a path from $p_i$ to $q_i$, $q_{i+1}$ to $p_{i+1}$.
+  Consider a node $p_i$ in SCC node $s_i$, there exists a path from $p_i$ to any node $p_{i+1}$ in SCC $s_{i+1}$, since there exists a node $q_i$ in SCC $s_i$ that has a directed edge to a node $q_{i+i}$ in SCC $s_{i+1}$, and there exists a path from $p_i$ to $q_i$ and from $q_{i+1}$ to $p_{i+1}$.
 
-  Applying the above conclusion repeatedly till we reach $s_j$, we have the conclusion there exists a path from any node $p_i$ in SCC $s_i$ to any node $p_j$ in SCC $s_j$. Similarly, we have there exists a path from any node $p_j$ in SCC $s_j$ to any node $p_i$ in $s_i$. Thus the nodes $p_i$ and $p_j$ should belong to the same SCC node which is the combination of SCC $s_i$ and $s_j$, and contradicts with the nodes being distinct in the assumption. And we have the directed SCC graph is acyclic, which makes it a DAG by definition.
+  Starting from $p_i$, apply the above conclusion repeatedly till we reach a node $p_j$ in SCC $s_j$, and we have that there exists a path from $p_i$ to $p_j$. Similarly, we have there exists a path from $p_j$ to $p_i$. Thus the nodes $p_i$ and $p_j$ should belong to the same SCC node which is the combination of SCC nodes $s_i$ and $s_j$. This contradicts with the nodes being distinct in the assumption. Thus we have the directed SCC graph is acyclic, which makes it a DAG by definition.
 
-  (b) The algorithm is given in alg \ref{alg:scc-graph}.
+  (b) The algorithm is given in alg \ref{alg:scc-graph}. It follows the bullets described in the hint: we start by calling $getSCC(G)$, the algorithm does a DFS starting from any node in $G$, and labels the nodes by \textit{reverse post-order number (which is why we have smallest labeled node rather than largest as suggested by the hint)}. The node with smallest label is remembered, and we then start from that node, do another DFS to see which nodes it can reach, and build a SCC.
+
+  % This algorithm may not be correct, if we can start from a node that does not have connectivity to some other nodes
 
   \begin{algorithm}[h]
   \caption{SCC building algorithm}
@@ -97,7 +99,7 @@
 
   \textbf{Time complexity:} $O(|E|)$
 
-  \textbf{Correctness:}
+  \textbf{Correctness:} 
 
 \item[2]{Longest path in DAG}
 
@@ -138,11 +140,11 @@
     \end{algorithmic}
   \end{algorithm}
 
-  \textbf{Time complexity:} this algorithm is $O(|E|)$.
+  \textbf{Time complexity:} this iterative algorithm is $O(|E|)$, as it's using an $O(|E|)$ topological sorting algorithm with number of phases it takes remembered. 
 
-  \textbf{Correctness:} this algorithm does a similar thing as topological sort, except that it counts the steps needed to remove all the nodes, instead of labeling each removed nodes. The recursive idea is that length of longest path in a DAG $G$ is 1 + length of longest path in $G'$, where $G'$ is the remaining graph after all sources in $G$ are removed.
+  \textbf{Correctness:} this algorithm does a similar thing as topological sort, except that it counts the phases needed to remove all nodes. The correctness is based on the conclusion that length of longest path in a DAG $G$ is 1 + length of longest path in $G'$, where $G'$ is the remaining graph after all sources in $G$ are removed; this conclusion can be proved by induction. 
 
-  (b) algorithm is given in alg \ref{alg:longest-path-weighted-dag}. Similar with the idea of problem (a), we base the algorithm on topological sort. We associate a weight with each node, and each time the algorithm removes a source node $i$, the nodes $j$ that it connects to will have new weight $w(j) = max(w(j), weight(i,j) + w(i))$. The largest weight in the DAG will be returned as the length of the longest path.
+  (b) algorithm is given in alg \ref{alg:longest-path-weighted-dag}. Similar with the idea of problem (a), we base the algorithm on topological sort, and label each node. Each time the algorithm removes a source node $i$, the nodes $j$ that it connects to will have new label $w(j) = max(w(j), l(i,j) + w(i))$. The largest label in the DAG will be returned as the length of the longest path.
 
   \begin{algorithm}[h]
   \caption{Longest path in a weighted DAG}
@@ -155,18 +157,18 @@
       \For {$\{i|i \in V\}$}
         \If {$i.inDegree = 0$}
           \State $sourceNodes.add(i)$
-          \State $i.length \gets 0$
+          \State $i.label \gets 0$
         \EndIf
       \EndFor
-      \State $maxLength \gets min\_real$
+      \State $maxLength \gets 0$
       \While {$nodeCount > 0$}
         \State $newSourceNodes \gets []$
         \For {$\{i|i \in sourceNodes\}$}
           \For {$\{v|(i, v) \in E\}$}
             \State $v.inDegree \gets v.inDegree - 1$
-            \State $v.weight \gets max(v.weight, i.weight + w(v,i))$
-            \If {$maxLength < v.weight$}
-              \State {$maxLength \gets v.weight$}
+            \State $v.label \gets max(v.label, i.label + l(i,v))$
+            \If {$maxLength < v.label$}
+              \State {$maxLength \gets v.label$}
             \EndIf
             \If {$v.inDegree = 0$}
               \State $newSourceNodes.add(v)$
@@ -183,11 +185,17 @@
     \end{algorithmic}
   \end{algorithm}
 
-  \textbf{Time complexity:} this algorithm is $O(|E|)$.
+  \textbf{Time complexity:} similar with a topological sort, this algorithm is $O(|E|)$, as each edge in the graph will be used exactly once.
 
   \textbf{Correctness:} 
 
-  (c) algorithm is given in alg \ref{alg:weighted-dag-job-scheduling}. Similar idea as in (b). 
+  \textbf{Lemma:} during the topological sort, every time a node $p$ becomes source, its label will be the the length of the longest path starting from any node and ending at $p$. 
+
+  This lemma is easily proved by contradiction, as when the node becomes source there won't be any path going to it, so the label of the source will be the length of maximum path that ends at the node. (The labels of all nodes are initialized as 0, so that negative labels won't be kept, and in case of negative labels, we could just ignore the earlier paths that lead to this node.)
+
+  The algorithm returns the maximum label of nodes in the graph after all nodes become sources, given the lemma, the algorithm will return the length of the longest path in the graph.
+
+  (c) algorithm is given in alg \ref{alg:weighted-dag-job-scheduling}. Similar idea as in (b). The algorithm returns a list of jobs sorted by their labels (defined in the algorithm as the longest time it takes to get the prerequisites of that job done), and a schedule that starts each job at the labeled time minimizes the total time needed to finish all jobs.
 
   \begin{algorithm}[h]
   \caption{Weighted DAG job scheduling}
@@ -200,7 +208,7 @@
       \For {$\{i|i \in V\}$}
         \If {$i.inDegree = 0$}
           \State $sourceNodes.add(i)$
-          \State $i.weight \gets 0$
+          \State $i.label \gets 0$
         \EndIf
       \EndFor
       \While {$nodeCount > 0$}
@@ -208,7 +216,7 @@
         \For {$\{i|i \in sourceNodes\}$}
           \For {$\{v|(i, v) \in E\}$}
             \State $v.inDegree \gets v.inDegree - 1$
-            \State $v.weight \gets max(v.weight, i.weight + w(i,v))$
+            \State $v.label \gets max(v.label, i.label + l(i))$
             
             \If {$v.inDegree = 0$}
               \State $newSourceNodes.add(v)$
@@ -219,15 +227,19 @@
         \EndFor
         \State $sourceNodes \gets newSourceNodes$
       \EndWhile
-      \State \Return $sort(v.weight)$
+      \State \Return $sort(v.label)$
     \EndFunction
     
     \end{algorithmic}
   \end{algorithm}
 
-  \textbf{Time complexity:} this algorithm is $O(max(|E|, |V| \log |V|))$.
+  \textbf{Time complexity:} this algorithm is $O(max(|E|, |V| \log |V|))$. $O(|E|)$ comes from the topological sort and labeling, which will visit each edge exactly once; and $|V| \log |V|$ comes from the sorting by label in the end.
 
-  \textbf{Correctness:} 
+  \textbf{Correctness:} the proof is similar as that of (b) except that we don't need to consider the negative label case. A brief description below:
+
+  \textbf{Lemma:} during the topological sort, when a node becomes source, its label is the earliest time when the corresponding job can start. This can be easily proved by induction given the label definition in alg \ref{alg:weighted-dag-job-scheduling}.
+
+  By the lemma, we have that the algorithm provides a schedule that starts a job as soon as it can be started. This schedule is optimal, which can be easily proved by contradiction.
 
 \item[3]{Optimal order of files}
   
@@ -249,7 +261,7 @@
     \end{algorithmic}
   \end{algorithm}
 
-  \textbf{Time complexity:} this algorithm is $O(n \log n)$, where $n$ is the number of files.
+  \textbf{Time complexity:} this algorithm is $O(n \log n)$, where $n$ is the number of files. The calculation of $\frac{p_i}{l_i}$ requires a traversal of array, which is $O(n)$, and the sorting afterwards is $O(n \log n)$, which makes the entire algorithm $O(n \log n)$.
 
   \textbf{Correctness:} proof by the algorithm's greedy choice property and optimal substructure property.
 
@@ -274,7 +286,7 @@
 
 \item[4]{Sorting from SC}
   
-  Suppose that $SC(p_i, d_i)$ takes in $n$ jobs, and each has a $p_i$ and $d_i$. $SC$ returns the optimal list of jobs, whose array of deadlines can be extracted by $jobs.deadlines$. The sorting algorithm is described in alg \ref{alg:sorting-sc}.
+  Suppose that $SC(p_i, d_i)$ takes in $n$ jobs, and each has a $p_i$ and $d_i$. $SC$ returns the optimal list of jobs expressed in two arrays $times$, $deadlines$. The sorting algorithm is described in alg \ref{alg:sorting-sc}.
 
   \begin{algorithm}[h]
   \caption{Sorting using SC}
@@ -282,8 +294,8 @@
     \begin{algorithmic}[1]
   
     \Function{sort}{array}
-      \State $jobs \gets SC(array, array)$
-      \State \Return $jobs.deadlines$
+      \State $times, deadlines \gets SC(array, array)$
+      \State \Return $deadlines$
     \EndFunction
     
     \end{algorithmic}
@@ -291,7 +303,7 @@
 
   \textbf{Time complexity:} SC is $o(n \log n)$, and other calls are $O(1)$, so the overall $sort$ is $o(n \log n)$.
 
-  \textbf{Correctness:} suppose that the algorithm gives back an array $S=d_1...d_n$, we want to prove for each $i<j$, $d_i \leq d_j$.
+  \textbf{Correctness:} suppose that the algorithm gives back a deadline array of $S=d_1...d_n$, we want to prove for each $i<j$, $d_i \leq d_j$.
 
   We start by proving that the first element $d_1$ is a smallest element. 
 
@@ -299,7 +311,7 @@
 
   Similarly, starting from $S'$, we repeatedly switch $d_k$ with its previous element, and can prove $d_1 =...= d_{k-1} = d_k$. Thus $d_1$ is a smallest element.
 
-  Consider the array $S_1$ with $d_1$ removed, using the above described process we can prove that $d_2$ is a smallest element in $S_1$. We continue until the array $S$ is exhausted, and we have for each $i<j$, $d_i \leq d_j$.
+  Consider the array $S_1$ which is $S$ with $d_1$ removed, using the above described process we can prove that $d_2$ is a smallest element in $S_1$. We continue until the array $S$ is exhausted, and we have for each $i<j$, $d_i \leq d_j$.
 
 \end{description}
 
