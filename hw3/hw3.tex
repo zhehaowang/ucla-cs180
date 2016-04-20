@@ -39,11 +39,14 @@
 
   Starting from $p_i$, apply the above conclusion repeatedly till we reach a node $p_j$ in SCC $s_j$, and we have that there exists a path from $p_i$ to $p_j$. Similarly, we have there exists a path from $p_j$ to $p_i$. Thus the nodes $p_i$ and $p_j$ should belong to the same SCC node which is the combination of SCC nodes $s_i$ and $s_j$. This contradicts with the nodes being distinct in the assumption. Thus we have the directed SCC graph is acyclic, which makes it a DAG by definition.
 
-  (b) The algorithm is given in alg \ref{alg:scc-graph}. It follows the bullets described in the hint: we start by calling $getSCC(G)$, the algorithm does a DFS starting from any node in $G$, and labels the nodes by \textit{reverse post-order number (which is why we have smallest labeled node rather than largest as suggested by the hint)}. The node with smallest label is remembered, and we then start from that node, do another DFS to see which nodes it can reach, and build a SCC.
+  (b) The algorithm is given in alg \ref{alg:scc-graph}. 
 
-  % This algorithm may not be correct, if we can start from a node that does not have connectivity to some other nodes
+  It follows the hint: we start by calling $getSCC(G)$, the algorithm does a DFS starting from the node $v$ who can reach all nodes in $G$, and labels the nodes by \textit{reverse} post-order number (which is why we have smallest labeled node rather than largest as suggested by the hint). The node with smallest label is remembered, and we then start from that node, do another DFS to find the nodes that it can reach, build a SCC with those node, then remove them, and start again with the smallest labeled node. The $DFS$ function takes additional parameters to tell if this run is doing the initial labeling, or this run is getting a SCC and removing it from the original graph, in case of the latter, several additional parameters are added so that the state is kept during each recursive call.
 
-  \begin{algorithm}[h]
+  % This algorithm may not be correct, if we can start from a node that does not have connectivity to some other nodes? 
+  % This is apparently prevented by the spec, we can start from a 'v' who can reach all nodes. What if the spec does not give us this 'v'?
+
+  \begin{algorithm}[H]
   \caption{SCC building algorithm}
   \label{alg:scc-graph}
     \begin{algorithmic}[1]
@@ -62,7 +65,9 @@
           \State $DFS(i, do\_label, smallest\_node, node\_remaining, node\_removed, SCC\_graph)$
         \Else
           \If {$i \in SCC\_graph$}
+          \label{line:in}
             \State $SCC\_graph.addEdge(v,i)$
+            \label{line:addedge}
           \Else
             \State $DFS(i, do\_label, smallest\_node, node\_remaining, node\_removed, SCC\_graph)$
           \EndIf
@@ -78,7 +83,7 @@
 
     \Function{getSCC}{G}
       \State $smallest\_node \gets nil$
-      \State $DFS(G.firstNode(), true, smallest\_node, G.nodes, [], nil)$
+      \State $DFS(v, true, smallest\_node, G.nodes, [], nil)$
 
       \State $smallest\_node\_copy \gets smallest\_node.copy()$
       \State $G.resetVisited()$
@@ -97,9 +102,13 @@
     \end{algorithmic}
   \end{algorithm}
 
-  \textbf{Time complexity:} $O(|E|)$
+  \textbf{Time complexity:} this algorithm is $O(|E|)$. The initial DFS traversal visits each edge exactly once and is $O(|E|)$. All the subsequent DFSs combined also visits each edge exactly once, and is $O(|E|)$ (This makes the assumption that calls such as deciding if a node's in a SCC (line \ref{line:in}), and adding edges in the resulting SCC graph (line \ref{line:addedge}) are $O(1)$, which can be achieved by hashing). So the overall complexity is $O(|E|)$.
 
-  \textbf{Correctness:} 
+  \textbf{Correctness:} Let $G=(V,E)$ be the original graph, $G'=(V,E')$ and $E=$ \{edges picked by the initial DFS post order traversal of $G$\}. $G'$ is a DAG. The smallest labeled node $r$ from reverse post order traversal is a sink in $G'$. 
+
+  We want to prove that for all $n \in V$, if there exists a path $p_i$ from $r$ to $n$ in $G$, then there exists a path $p_j$ from $n$ to $r$ in $G$. 
+
+
 
 \item[2]{Longest path in DAG}
 
@@ -107,12 +116,13 @@
 
   \begin{algorithm}[h]
   \caption{Longest path in an unweighted DAG}
-  \label{alg:longest-path-unweighted-DAG}
+  \label{alg:longest-path-unweighted-dag}
     \begin{algorithmic}[1]
   
     \Function{longestPath}{G}
       \State $nodeCount \gets len(V)$
       \State $sourceNodes \gets []$
+      \State $lastNode \gets nil$
       \For {$\{i|i \in V\}$}
         \If {$i.inDegree = 0$}
           \State $sourceNodes.add(i)$
@@ -126,15 +136,24 @@
             \State $v.inDegree \gets v.inDegree - 1$
             \If {$v.inDegree = 0$}
               \State $newSourceNodes.add(v)$
+              \State $v.from \gets i$
             \EndIf
           \EndFor
           \State $G.remove(i)$
+          \State $lastNode \gets i$
           \State $nodeCount \gets nodeCount - 1$
         \EndFor
         \State $sourceNodes \gets newSourceNodes$
         \State $length \gets length + 1$
       \EndWhile
-      \State \Return $length$
+
+      \State $node \gets lastNode$
+      \State $path \gets [lastNode]$
+      \While {$node.from \neq nil$}
+        \State $path.push(node.from)$
+        \State $node = node.from$
+      \EndWhile
+      \State \Return $length$, $path$
     \EndFunction
     
     \end{algorithmic}
@@ -144,16 +163,19 @@
 
   \textbf{Correctness:} this algorithm does a similar thing as topological sort, except that it counts the phases needed to remove all nodes. The correctness is based on the conclusion that length of longest path in a DAG $G$ is 1 + length of longest path in $G'$, where $G'$ is the remaining graph after all sources in $G$ are removed; this conclusion can be proved by induction. 
 
-  (b) algorithm is given in alg \ref{alg:longest-path-weighted-dag}. Similar with the idea of problem (a), we base the algorithm on topological sort, and label each node. Each time the algorithm removes a source node $i$, the nodes $j$ that it connects to will have new label $w(j) = max(w(j), l(i,j) + w(i))$. The largest label in the DAG will be returned as the length of the longest path.
+  And as we find new sources, we update the \textit{from} field of the node to keep track of the nodes on the longest path.
+
+  (b) algorithm is given in alg \ref{alg:longest-path-weighted-dag}. Similar with the idea of problem (a), we base the algorithm on topological sort, and label each node. Each time the algorithm removes a source node $i$, the nodes $j$ that it connects to will have new label $w(j) = max(w(j), l(i,j) + w(i))$. The largest label in the DAG will be returned as the length of the longest path. 
 
   \begin{algorithm}[h]
   \caption{Longest path in a weighted DAG}
-  \label{alg:longest-path-weighted-DAG}
+  \label{alg:longest-path-weighted-dag}
     \begin{algorithmic}[1]
   
     \Function{longestPath}{G}
       \State $nodeCount \gets len(V)$
       \State $sourceNodes \gets []$
+      \State $maxNode \gets nil$
       \For {$\{i|i \in V\}$}
         \If {$i.inDegree = 0$}
           \State $sourceNodes.add(i)$
@@ -166,9 +188,13 @@
         \For {$\{i|i \in sourceNodes\}$}
           \For {$\{v|(i, v) \in E\}$}
             \State $v.inDegree \gets v.inDegree - 1$
-            \State $v.label \gets max(v.label, i.label + l(i,v))$
+            \If {$v.label < i.label + l(i,v)$}
+              \State $v.label \gets i.label + l(i,v)$
+              \State $v.from \gets i$
+            \EndIf
             \If {$maxLength < v.label$}
               \State {$maxLength \gets v.label$}
+              \State {$maxNode \gets v$}
             \EndIf
             \If {$v.inDegree = 0$}
               \State $newSourceNodes.add(v)$
@@ -179,7 +205,14 @@
         \EndFor
         \State $sourceNodes \gets newSourceNodes$
       \EndWhile
-      \State \Return $maxLength$
+
+      \State $node \gets maxNode$
+      \State $path \gets [maxNode]$
+      \While {$node.from \neq nil$}
+        \State $path.push(node.from)$
+        \State $node = node.from$
+      \EndWhile
+      \State \Return $maxLength$, $path$
     \EndFunction
     
     \end{algorithmic}
@@ -193,7 +226,7 @@
 
   This lemma is easily proved by contradiction, as when the node becomes source there won't be any path going to it, so the label of the source will be the length of maximum path that ends at the node. (The labels of all nodes are initialized as 0, so that negative labels won't be kept, and in case of negative labels, we could just ignore the earlier paths that lead to this node.)
 
-  The algorithm returns the maximum label of nodes in the graph after all nodes become sources, given the lemma, the algorithm will return the length of the longest path in the graph.
+  The algorithm returns the maximum label of nodes in the graph after all nodes become sources, given the lemma, the algorithm will return the length of the longest path in the graph. And as we update the label with larger values, we update the \textit{from} field of the node to keep track of the longest nodes on the path.
 
   (c) algorithm is given in alg \ref{alg:weighted-dag-job-scheduling}. Similar idea as in (b). The algorithm returns a list of jobs sorted by their labels (defined in the algorithm as the longest time it takes to get the prerequisites of that job done), and a schedule that starts each job at the labeled time minimizes the total time needed to finish all jobs.
 
@@ -305,9 +338,9 @@
 
   \textbf{Correctness:} suppose that the algorithm gives back a deadline array of $S=d_1...d_n$, we want to prove for each $i<j$, $d_i \leq d_j$.
 
-  We start by proving that the first element $d_1$ is a smallest element. 
+  We start by proving that the first element $d_1$ is a smallest element by contradiction. 
 
-  Suppose we have a smallest element $d_k$ in $S$, $d_k \leq d_i, 1 \leq i \leq n$. Let the total lateness of $S$ be $t(S)$. Consider the sequence $S'$ with $d_k$ and $d_{k-1}$ swapped, its difference in lateness with $t(S)$ is $t(S) - t(S') = \sigma_{i=1}^{k-1}{d_i} - \sigma_{i=1}^{k-2}{d_i} - d_k = d_{k-1} - d{k} \geq 0$, and we have $t(S) \geq t(S')$. Since $t(S)$ is given back by $SC$, and satisfies $t(S) \leq t(S_i)$, where $S_i$ is any schedule, we have $t(S) = t(S')$ and $d_{k-1} = d{k}$. 
+  Assume we have a smaller element $d_k < d_1$ in $S$, $1 \leq i \leq n$. Let the maximum lateness of $S$ be $t(S) = max((\sigma_{i=1}^{n}{p_i}) - d_n)$. Consider the sequence $S'$ with $d_k$ and $d_{k-1}$ swapped, let its maximum lateness be $t(S')$. With given input where $p_i = d_i$, $t(S) = \sigma_{i=1}^{n-1}{d_i}$, $t(S') = $, and either way $t(S') \leq t(S)$. 
 
   Similarly, starting from $S'$, we repeatedly switch $d_k$ with its previous element, and can prove $d_1 =...= d_{k-1} = d_k$. Thus $d_1$ is a smallest element.
 
