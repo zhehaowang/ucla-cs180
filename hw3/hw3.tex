@@ -102,7 +102,7 @@
 
   \textbf{Note:} following the hint to the word may not result in a correct algorithm. Consider the graph in \ref{fig:pb1}, with a DFS starting from $a$, if the DFS chooses the rightmost path first, we have a post order traversal order of $a, b, d, e, c$; according to the hint, we then start from $c$, do a DFS, which will lead us to think that $c, b, d, e$ are in an SCC, which is not the case here. 
 
-  The difference between the hint and Tarjan's algorithm as given above, seems to be that Tarjan's algorithm essentially does the first labeling DFS and subsequent DFSs in one run (in this example, the nodes $c, b$ will be taken out as a SCC before $d$ is explored.)
+  The difference between the hint and Tarjan's algorithm as given above, seems to be that Tarjan's algorithm essentially does the first labeling DFS run and subsequent DFS runs in one pass (in this example, the nodes $c, b$ will be taken out as a SCC before $d$ is explored.)
 
   \begin{figure}[h]
   \centering
@@ -113,7 +113,7 @@
 
 \item[2]{Longest path in DAG}
 
-  (a) algorithm is given in alg \ref{alg:longest-path-unweighted-dag}.
+  (a) algorithm is given in alg \ref{alg:longest-path-unweighted-dag}. As we find new sources, we update the \textit{from} field of the node to keep track of the nodes on the longest path.
 
   \begin{algorithm}[h]
   \caption{Longest path in an unweighted DAG}
@@ -160,13 +160,17 @@
     \end{algorithmic}
   \end{algorithm}
 
-  \textbf{Time complexity:} this iterative algorithm is $O(|E|)$, as it's using an $O(|E|)$ topological sorting algorithm with number of phases it takes remembered. 
+  \textbf{Time complexity:} this iterative algorithm is $O(|E|)$, as it's using an $O(|E|)$ topological sorting algorithm with number of phases remembered. 
 
-  \textbf{Correctness:} this algorithm does a similar thing as topological sort, except that it counts the phases needed to remove all nodes. The correctness is based on the conclusion that length of longest path in a DAG $G$ is 1 + length of longest path in $G'$, where $G'$ is the remaining graph after all sources in $G$ are removed; this conclusion can be proved by induction. 
+  \textbf{Correctness:} this algorithm counts the phases needed to remove all nodes in a topological sort. The correctness is based on the conclusion that length of longest path in a DAG $G$ is 1 + length of longest path in $G'$, where $G'$ is the remaining graph after all sources in $G$ are removed. This conclusion can be proved by induction.
 
-  And as we find new sources, we update the \textit{from} field of the node to keep track of the nodes on the longest path.
+  Base case obviously holds for graphs with only one node, or two nodes with one directed edge between them.
 
-  (b) algorithm is given in alg \ref{alg:longest-path-weighted-dag}. Similar with the idea of problem (a), we base the algorithm on topological sort, and label each node. Each time the algorithm removes a source node $i$, the nodes $j$ that it connects to will have new label $w(j) = max(w(j), l(i,j) + w(i))$. The largest label in the DAG will be returned as the length of the longest path. 
+  Induction hypothesis: conclusion holds for any DAGs that takes $n$ phases in a topological sort, and the longest path is $n-1$.
+
+  Induction case holds for graphs that take $n+1$ phases. Proof by contradiction: assume there's a longer path than $n$ (at least $n+1$), the sub graph with all sources removed need to have length at least $n$, which contradicts with the induction hypothesis.
+
+  (b) algorithm is given in alg \ref{alg:longest-path-weighted-dag}. Similar with (a), we label each node. Each time the algorithm removes a source node $i$, the nodes $j$ that it connects to will have the label $w(j) = max(w(j), l(i,j) + w(i))$. The largest label in the DAG will be the length of the longest path. As we update the label with larger values, we update the \textit{from} field of the node to keep track of the longest nodes on the path.
 
   \begin{algorithm}[h]
   \caption{Longest path in a weighted DAG}
@@ -223,13 +227,13 @@
 
   \textbf{Correctness:} 
 
-  \textbf{Lemma:} during the topological sort, every time a node $p$ becomes source, its label will be the the length of the longest path starting from any node and ending at $p$. 
+  \textbf{Lemma:} during the topological sort, every time a node $p$ becomes source, its label will be the length of the longest path starting from any node and ending at $p$. 
 
   This lemma is easily proved by contradiction, as when the node becomes source there won't be any path going to it, so the label of the source will be the length of maximum path that ends at the node. (The labels of all nodes are initialized as 0, so that negative labels won't be kept, and in case of negative labels, we could just ignore the earlier paths that lead to this node.)
 
-  The algorithm returns the maximum label of nodes in the graph after all nodes become sources, given the lemma, the algorithm will return the length of the longest path in the graph. And as we update the label with larger values, we update the \textit{from} field of the node to keep track of the longest nodes on the path.
+  The algorithm returns the maximum label of nodes in the graph after all nodes become sources, given the lemma, the algorithm will return the length of the longest path in the graph.
 
-  (c) algorithm is given in alg \ref{alg:weighted-dag-job-scheduling}. Similar idea as in (b). The algorithm returns a list of jobs sorted by their labels (defined in the algorithm as the longest time it takes to get the prerequisites of that job done), and a schedule that starts each job at the labeled time minimizes the total time needed to finish all jobs.
+  (c) algorithm is given in alg \ref{alg:weighted-dag-job-scheduling}. Similar as (b), the algorithm labels jobs, and returns a list of jobs sorted by their labels (defined as the longest time it takes to get the prerequisites of that job done). A schedule that starts each job at the labeled time minimizes the total time needed to finish all jobs.
 
   \begin{algorithm}[h]
   \caption{Weighted DAG job scheduling}
@@ -339,11 +343,11 @@
 
   \textbf{Correctness:} suppose that the algorithm gives back a deadline array of $S=d_1...d_n$, we want to prove for each $i<j$, $d_i \leq d_j$.
 
-  We start by proving that the first element $d_1$ is a smallest element by contradiction. 
+  We start by proving that the first element $d_1$ is a smallest element. 
 
-  Assume we have a smaller element $d_k < d_1$ in $S$, $1 \leq i \leq n$. Let the maximum lateness of $S$ be $t(S) = max((\sigma_{i=1}^{n}{p_i}) - d_n)$. Consider the sequence $S'$ with $d_k$ and $d_{k-1}$ swapped, let its maximum lateness be $t(S')$. With given input where $p_i = d_i$, $t(S) = \sigma_{i=1}^{n-1}{d_i}$, $t(S') = $, and either way $t(S') \leq t(S)$. 
+  Assume we have a smaller element $d_k < d_1$ in $S$, $1 \leq i \leq n$. Let the maximum lateness of $S$ be $t(S) = max((\sigma_{i=1}^{n}{p_i}) - d_n)$. Consider the sequence $S'$ with $d_k$ and $d_{k-1}$ swapped, let its maximum lateness be $t(S')$. With given input where $p_i = d_i$, $t(S) = \sigma_{i=1}^{k-1}{d_i}$, $t(S') = \sigma_{i=1}^{k-2}{d_i} + d_k$, and $t(S) - t(S') = d_{k-1} - d_k \geq 0$. \footnote{With $SC$ being a blackbox, this given input only seems to guarantee the last element in the returned array has the largest deadline, and does not have other properties. A better solution would be to carefully craft a $p_i$ array to give to the input. An ideal $p_i$ array would be $p_i$ = $d_{i+1} - d_i$, where $d_i$ array is sorted, however this array can only be known after we have the sorting result...}
 
-  Similarly, starting from $S'$, we repeatedly switch $d_k$ with its previous element, and can prove $d_1 =...= d_{k-1} = d_k$. Thus $d_1$ is a smallest element.
+  Similarly, starting from $S'$, we repeatedly switch $d_k$ with its previous element, and can prove $t(S) \geq...\geq t(S_{k-1}) \geq t(S_k)$. Thus for $SC$ to provide the optimal solution, the first element $d_1$ should be a smallest element.
 
   Consider the array $S_1$ which is $S$ with $d_1$ removed, using the above described process we can prove that $d_2$ is a smallest element in $S_1$. We continue until the array $S$ is exhausted, and we have for each $i<j$, $d_i \leq d_j$.
 
