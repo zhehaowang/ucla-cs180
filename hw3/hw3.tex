@@ -41,74 +41,75 @@
 
   (b) The algorithm is given in alg \ref{alg:scc-graph}. 
 
-  It follows the hint: we start by calling $getSCC(G)$, the algorithm does a DFS starting from the node $v$ who can reach all nodes in $G$, and labels the nodes by \textit{reverse} post-order number (which is why we have smallest labeled node rather than largest as suggested by the hint). The node with smallest label is remembered, and we then start from that node, do another DFS to find the nodes that it can reach, build a SCC with those node, then remove them, and start again with the smallest labeled node. The $DFS$ function takes additional parameters to tell if this run is doing the initial labeling, or this run is getting a SCC and removing it from the original graph, in case of the latter, several additional parameters are added so that the state is kept during each recursive call.
+  This algorithm does not follow the hint to the word (which we suspect to be misleading, as explained in the \textbf{notes} section below). Instead, the \textit{reverse} post order labeling using DFS and the subsequent DFS traversals starting from the smallest label (we start from smallest as the algorithm does a \textit{reverse} post order labeling) are done in one pass. 
 
-  % This algorithm may not be correct, if we can start from a node that does not have connectivity to some other nodes? 
-  % This is apparently prevented by the spec, we can start from a 'v' who can reach all nodes. What if the spec does not give us this 'v'?
+  To reduce complexity, the algorithm involves bookkeeping which labels all the nodes according to the sequences they are visited (This $index$ does not reflect the sequence of subsequent DFS traversals, which follows the reverse post order of the graph), and uses $lowlink$ to keep track of the label of the SCC the node's in, which is the smallest index of all nodes in the SCC.
+
+  The algorithm is invoked by calling $tarjanSCC(G)$, and should output (line \ref{line:output}) the list of nodes in each SCC.
 
   \begin{algorithm}[H]
-  \caption{SCC building algorithm}
+  \caption{SCC building algorithm (Tarjan)}
   \label{alg:scc-graph}
     \begin{algorithmic}[1]
-  
-    \Function{DFS}{v, do\_label, smallest\_node, node\_remaining, node\_removed, SCC\_graph}
-      \State $v.visited \gets true$
-      \If {$do\_label = false$}
-        \State $node\_remaining.remove(v)$
-        \State $node\_removed.add(v)$
-        \If {$v = smallest\_node$}
-          \State $smallest\_node \gets node\_remaining.nextSmallest()$
-        \EndIf
-      \EndIf
-      \For {$\{i | (v,i) \in E, i.visited = false\}$}
-        \If {$do\_label = true$}
-          \State $DFS(i, do\_label, smallest\_node, node\_remaining, node\_removed, SCC\_graph)$
-        \Else
-          \If {$i \in SCC\_graph$}
-          \label{line:in}
-            \State $SCC\_graph.addEdge(v,i)$
-            \label{line:addedge}
-          \Else
-            \State $DFS(i, do\_label, smallest\_node, node\_remaining, node\_removed, SCC\_graph)$
-          \EndIf
+    \Function{tarjanSCC}{G}
+      \State $index \gets 0$
+      \State $stack \gets []$
+      \For {$\{v \in V\}$}
+        \If {$v.index = nil$}
+          \State $scc(v)$
         \EndIf
       \EndFor
-      \If {$do\_label$}
-        \State $id \gets label(v)$
-        \If {$id < smallest\_node$}
-          \State $smallest\_node \gets v$
+
+      \Function{scc}{v}
+        \State $v.index \gets index$
+        \State $v.lowlink \gets index$
+        \State $index \gets index + 1$
+        \State $SCC\_nodes \gets []$
+
+        \State $stack.push(v)$
+        \State $v.onStack \gets true$
+
+        \For {$\{w | (v,w) \in E\}$}
+          \If {$w.index = nil$}
+            \State $scc(w)$
+            \State $v.lowlink \gets min(v.lowlink, w.lowlink)$
+          \ElsIf {$w.onStack$}
+            \State $v.lowlink \gets min(v.lowlink, w.index)$
+          \EndIf
+        \EndFor
+
+        \If {$v.lowlink = v.index$}
+          \While {$w \neq v$}
+            \State $w \gets stack.pop()$
+            \State $w.onStack \gets false$
+            \State $SCC\_nodes.addCurrent(w)$
+          \EndWhile
         \EndIf
-      \EndIf
+        \State $SCC\_nodes.output()$
+        \label{line:output}
+      \EndFunction
+
     \EndFunction
 
-    \Function{getSCC}{G}
-      \State $smallest\_node \gets nil$
-      \State $DFS(v, true, smallest\_node, G.nodes, [], nil)$
-
-      \State $smallest\_node\_copy \gets smallest\_node.copy()$
-      \State $G.resetVisited()$
-      \State $SCC\_graph \gets nil$
-      \While {$G.node\_count > 0$}
-        \State $G.resetVisited()$
-        \State $node\_removed \gets []$
-        \State $DFS(smallest\_node, false, smallest\_node\_copy, G.nodes, node\_removed, SCC\_graph)$
-        \State $smallest\_node \gets smallest\_node\_copy$
-        \State $SCC\_graph.addNode(node\_removed)$
-      \EndWhile
-
-      \State \Return $SCC\_graph$
-    \EndFunction
-    
     \end{algorithmic}
   \end{algorithm}
 
-  \textbf{Time complexity:} this algorithm is $O(|E|)$. The initial DFS traversal visits each edge exactly once and is $O(|E|)$. All the subsequent DFSs combined also visits each edge exactly once, and is $O(|E|)$ (This makes the assumption that calls such as deciding if a node's in a SCC (line \ref{line:in}), and adding edges in the resulting SCC graph (line \ref{line:addedge}) are $O(1)$, which can be achieved by hashing). So the overall complexity is $O(|E|)$.
+  \textbf{Time complexity:} this algorithm is $O(|E|)$. The initial labeling DFS traversal visits each edge exactly once and is $O(|E|)$. All the subsequent DFSs combined also visits each edge exactly once, and is $O(|E|)$. So the overall complexity is $O(|E|)$.
 
-  \textbf{Correctness:} Let $G=(V,E)$ be the original graph, $G'=(V,E')$ and $E=$ \{edges picked by the initial DFS post order traversal of $G$\}. $G'$ is a DAG. The smallest labeled node $r$ from reverse post order traversal is a sink in $G'$. 
+  \textbf{Correctness:} Let $G=(V,E)$ be the original graph, according to the algorithm description, we want to first prove that for all $r \in V$, by the time DFS finishes $r$, let the tree built by the DFS be $G'=(V',E')$, if there exists a path $p_i$ in $E$ that starts from $r$ to any $n \in V'$, then $n$ and $r$ belongs to the same SCC. Then we can merge these two nodes, continue with the DFS recursively, and use the same criteria to tell which SCC the next finished node belongs to, until all nodes are finished. 
 
-  We want to prove that for all $n \in V$, if there exists a path $p_i$ from $r$ to $n$ in $G$, then there exists a path $p_j$ from $n$ to $r$ in $G$. 
+  Consider the case when DFS finishes the first node $r$, $E'$ would contain only one path from the starting point of DFS $v$ to the sink $r$. Thus any node $v' \in V'$ has a path to $r$. Given that there exists a path from $r$ to any $n \in V'$ and there exists a path from $n$ to $r$, $r$ and $n$ should be in the same SCC, and the first part of the conclusion holds. After merging $n$ and $r$, we face a subproblem of the original problem with 1 less node, which we can solve by continuing with the recursion. 
 
+  \textbf{Note:} following the hint to the word may not result in a correct algorithm. Consider the graph in \ref{fig:pb1}, with a DFS starting from $a$, if the DFS chooses the rightmost path first, we have a post order traversal order of $a, b, d, e, c$; according to the hint, we then start from $c$, do a DFS, which will lead us to think that $c, b, d, e$ are in an SCC, which is not the case here. 
 
+  The difference between the hint and Tarjan's algorithm as given above, seems to be that Tarjan's algorithm essentially does the first labeling DFS and subsequent DFSs in one run (in this example, the nodes $c, b$ will be taken out as a SCC before $d$ is explored.)
+
+  \begin{figure}[h]
+  \centering
+  \includegraphics[width=0.25\textwidth]{hw31case}
+  \caption{Problematic case with just following the hint}
+  \label{fig:pb1}
+  \end{figure}
 
 \item[2]{Longest path in DAG}
 

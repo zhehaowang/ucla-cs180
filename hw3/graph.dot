@@ -1,0 +1,6 @@
+ // The graph name and the semicolons are optional
+ graph hw3_1 {
+     a -> b -> c;
+     a -> d -> e;
+     c -> b -> d;
+ }
