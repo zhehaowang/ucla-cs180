@@ -20,9 +20,9 @@
 \def\BState{\State\hskip-\ALG@thistlm}
 \makeatother
 
-\title{CS180 Homework 3}
+\title{CS180 Homework 4}
 \author{Zhehao Wang 404380075 (Dis 1B)}
-\date{Apr 16, 2016}
+\date{Apr 23, 2016}
 
 \begin{document}
 \maketitle
@@ -35,9 +35,9 @@
 
   % In class we proved that Kruskal's algorithm finds the lexicographically smallest tree (assume otherwise, the first smaller w_k is available but not chosen by the algorithm, which contradicts with the algorithm's selection of edges); in class we proved that Kruskal's algorithm finds the smallest tree, so lexicographically smallest tree is MST.
 
-  \textbf{Proof by contradiction:} let $T$ be the tree that our algorithm finds. Assume there exists a distinct MST $T'$ which is lexicographically larger than $T$: $T'$ has the same $w_1...w_{k-1}$ with $T$ but a $w'_k > w_k$, and the sorted tuple $A' = (w_1,...,w_{k-1}, w'_k, ..., w'_n)$. 
+  \textbf{Proof by contradiction:} let $T$ be the tree that our algorithm finds. Assume there exists a distinct MST $T'$ which is lexicographically larger than $T$: $T'$ has the same $w_1...w_{k-1}$ with $T$ but a $w'_k > w_k$, and $T'$'s sorted tuple $A' = (w_1,...,w_{k-1}, w'_k, ..., w'_n)$. 
 
-  Consider the graph $T''$ which is $T'$ with the edge $w_k$ included, there will be a loop. The loop contains at least one edge $e$ such that $w(e)$ is $w'_k$, or comes after $w'_k$ in array $A$: since if the loop only contains $w_k$ and edges that come before $w'_k$ in $A'$, $T$ would have a loop and contradicts with it being a spanning tree. Eliminate the edge $e$ from $T''$, we break the loop and still have a spanning tree $T'_s$. Since $w(e) \geq w'_k > w_k$, the sum of weight of $T'_s$ is smaller than that of $T'$, which contradicts with $T'$ being MST.
+  Consider the graph $T''$ which is $T'$ with the edge $w_k$ included, there will be a loop in $T''$. The loop contains at least one edge $e$ such that $w(e)$ is $w'_k$, or comes after $w'_k$ in array $A$: since if the loop only contains $w_k$ and edges that come before $w'_k$ in $A'$, $T$ would have a loop and contradicts with it being a spanning tree. Eliminate the edge $e$ from $T''$, we break the loop and still have a spanning tree $T'_s$. Since $w(e) \geq w'_k > w_k$, the sum of weight of $T'_s$ is smaller than that of $T'$, which contradicts with $T'$ being MST.
 
   Thus there doesn't exist a MST who is not lexicographically smallest, and a lexicographically smallest tree is the MST. The conclusion holds.
 
@@ -59,7 +59,7 @@
 
   \textbf{Proof:} according to the algorithm, all edges will be visited by the graph (assuming we have a connected graph). Since we add unvisited nodes to the queue upon visiting each edge and the algorithm only ends after the queue's empty, we will traverse all the nodes in the graph and for each node at least one path to reach it from $s$ will be maintained. Thus the resulting graph is connected.
 
-  Assume a cycle $(s_1,..., s_n, s_1)$ exists after the algorithm finishes. Let the last edge added to complete the cycle be $(s_k, s_{k+1 \mod n})$ where $k=1..n$, thus the last dequeued node to complete this cycle is $s_{k+1 \mod n}$. According to the algorithm, to put an edge $(u,v)$ in the resulting graph, $u$ should be dequeued, and each node is dequeued only once. Before dequeueing $s_{k+1 \mod n}$ and adding the edge $(s_k, s_{k+1 \mod n})$, edge $(s_{k+1 \mod n}, s{k+2 \mod n})$ is already in, so we have $s_{k+1 \mod n}$ is already dequeued. This contradicts with the nodes being dequeued only once. Thus the resulting graph is acyclic.
+  Assume a cycle $(s_1,..., s_n, s_1)$ exists after the algorithm finishes. Let the last edge added to complete the cycle be $(s_k, s_{k+1 \mod n})$ where $k=1..n$, thus the last dequeued node to complete this cycle is $s_{k+1 \mod n}$. According to the algorithm, to put an edge $(u,v)$ in the resulting graph, $u$ should be dequeued, and each node is dequeued only once. Before dequeueing $s_{k+1 \mod n}$ and adding the edge $(s_k, s_{k+1 \mod n})$, edge $(s_{k+1 \mod n}, s_{k+2 \mod n})$ is already in, so we have $s_{k+1 \mod n}$ is already dequeued. This contradicts with the nodes being dequeued only once. Thus the resulting graph is acyclic.
 
   Since the resulting graph has the same nodes as the input graph, is connected and acyclic, we have that the resulting graph is a spanning tree of the original graph.
 
@@ -90,11 +90,11 @@
 
   In the case $w'_k = w(x,y)$, \textit{Prim} picked $(x,y)$ because $w(x,y) < w(u,v)$. Consider the position of $w(u,v)$ in $P(v)$, it must come after $k - 1$ since the first $k - 1$ elements are the same in $P(v)$ and $P(y)$ and $(u,v)$ does not exist in $P(y)$. So we have $w(x,y) = w'_k > w_k \geq w(u,v)$, which contradicts with $w(x,y) < w(u,v)$.
 
-  Summarizing the two cases, we have that \textit{DijkstraMST} and \textit{Prim} couldn't have made two different picks as the $(n+1)^{th}$ edge, and the two construct MST in the same order.
+  Summarizing the two cases, we have that \textit{DijkstraMST} and \textit{Prim} couldn't have made two different picks as the $(n+1)^{th}$ edge. The induction case holds, and the two construct MST in the same order.
 
 \item[3]{Tournament scheduling}
 
-  The algorithm's given in alg \ref{alg:tournament-scheduling}.
+  The algorithm's given in alg \ref{alg:tournament-scheduling}. The algorithm takes input number of players $n$, and records scheduling result in the output array $day$.
   
   \begin{algorithm}[H]
   \caption{Tournament scheduling algorithm}
@@ -119,7 +119,7 @@
       \State $n \gets len(listA)$
       \For {$n \leq j < 2 \cdot n$}
         \For {$0 < i \leq n$}
-          \State $day[j].add(listA[i], listB[(i+j) \mod n])$
+          \State $day[j].add(match(listA[i], listB[(i+j) \mod n]))$
         \EndFor
       \EndFor
     \EndFunction
