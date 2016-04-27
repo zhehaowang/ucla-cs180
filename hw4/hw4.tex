@@ -127,7 +127,7 @@
     \end{algorithmic}
   \end{algorithm}
 
-  \textbf{Correctness:} this algorithm applies divide and conquer; each time we split the players into two halfs, and schedule matches inside the half. The recursion here is: 
+  \textbf{Correctness:} this algorithm applies divide and conquer; each time we split the players into two halves, and schedule matches inside the half. The recursion here is: 
   $$SchedulingResult(n) = SchedulingResult(1^{st} half) + SchedulingResult(2^{nd} half) + Merge(1^{st} half, 2^{nd} half)$$ 
 
   With the base case being when each half has only one player, we schedule player $2i$ to play against player $2i+1$ on day 1. 
