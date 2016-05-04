@@ -20,9 +20,9 @@
 \def\BState{\State\hskip-\ALG@thistlm}
 \makeatother
 
-\title{CS180 Homework 4}
+\title{CS180 Homework 5}
 \author{Zhehao Wang 404380075 (Dis 1B)}
-\date{Apr 23, 2016}
+\date{May 4, 2016}
 
 \begin{document}
 \maketitle
@@ -128,8 +128,8 @@
         \State $inc \gets 1$
       \EndIf
       \For {$0 < j < len(s)$}
-        \If $s[left - j] \neq s[right + j] \vee left - j < 1 \vee right + j > len(s)$
-          \Return $2j + inc$
+        \If {$s[left - j] \neq s[right + j] \vee left - j < 1 \vee right + j > len(s)$}
+          \State \Return $2j + inc$
         \EndIf
       \EndFor
       \State \Return $2j + inc$
@@ -138,7 +138,7 @@
     \end{algorithmic}
   \end{algorithm}
 
-  \textbf{Correctness:} a palindrome substring only has $2n - 1$ possible centers, where $n$ is the length of the string: namely the $n$ characters in the string, and $n-1$ gaps between each two adjacent characters. The algorithm starts from each of the possible centers, and expand left and right character by character till the resulting string is no longer a palindrome. The longest palindrome string among the $2n - 1$ centers is then returned. 
+  \textbf{Correctness:} a palindrome substring only has $2n - 1$ possible centers, where $n$ is the length of the string: namely the $n$ characters in the string, and $n-1$ gaps between each two adjacent characters can be centers. The algorithm starts from each of the possible centers, and expand left and right character by character till the resulting string is no longer a palindrome. The longest palindrome string among the $2n - 1$ centers is then returned. 
 
   \textbf{Time complexity:} the given algorithm is $O(n^2)$, where $n$ is the length of the string. It tries all $n$ characters in the string as the middle point of the palindrome, as well as all $n-1$ gaps between each two characters in the string. Each trial takes at most $n$ visits to the characters in the string. Thus the total number of execution is $O(n \dot (2n - 1))$, which is $O(n^2)$.
 
@@ -148,9 +148,9 @@
 
   The algorithm's given in alg \ref{alg:cut-string-dp}. The algorithm takes in the string $S$, cut array $P$, and returns the minimal cost of cutting, and prints the cut points in order.
 
-  The algorithm uses dynamic programming: the cut points are first extracted into the array $cutPoints$, and $cost[i][j]$ is used to denote the minimum total cost of cutting all the $cutPoints$ between the $i^{th}$ and $j^{th}$ cut points. In the first iteration, the algorithm calculates the $cost$ of all pairs of cut points with one cut point in between; using the result from the first iteration, the algorithm then calculatetes the $cost$ of all pairs of cut points with two cut point between them, choosing the cut point that yields smaller total cost...and eventually the algorithm gets the $cost$ from the start of the array to its end.
+  The algorithm uses dynamic programming: the indices of cut points are first extracted into the array $cutPoints$, and $cost[i][j]$ is used to denote the minimum total cost of cutting all the $cutPoints$ between the $i^{th}$ and $j^{th}$ cut points. In the first iteration, the algorithm calculates the $cost$ of all pairs of cut points with one cut point in between; using the result from the first iteration, the algorithm then calculatetes the $cost$ of all pairs of cut points with two cut point between them, choosing the cut point that yields smaller total cost to cut...and eventually the algorithm gets the $cost$ from the start of the array to its end.
 
-  The algorithm uses $nextCut$ to keep track of the index of the cut point that results in smallest total cost when cutting between a $start$ and $end$ point in the string. The printing algorithm looks up the $index$, and recursively looks up the next cut points by checking $nextCut[start][index]$ and $nextCut[index][end]$, until all cut points are addressed.
+  The algorithm uses $nextCut$ to keep track of the $index$ of the cut point that results in smallest total cost when cutting between a $start$ and $end$ point in the string. The printing algorithm looks up the $index$, and recursively looks up the next cut points by checking $nextCut[start][index]$ and $nextCut[index][end]$, until all cut points are addressed.
 
   \begin{algorithm}[H]
   \caption{Cut string DP}
@@ -275,7 +275,7 @@
                   \end{cases}
 \]
 
-  where $n$ is the list of jobs from (\textit{total number of jobs}$ - n$) to the last job, and $t$ is the remaining time. If job $i$'s deadline cannot be met, we have the first branch of the recursion; otherwise the recursion chooses the larger schedule among the ones with or without the job $i$. Thus $schedule(len(jobs), D)$ gives the max schedule among all the jobs.
+  where $n$ is the job we are considering (we've already considered the list which consists of $job_1..job_{n-1}$), and $t$ is the remaining time. If job $i$'s deadline cannot be met, we have the first branch of the recursion; otherwise the recursion chooses the larger schedule among the ones with or without the job $i$. Thus $schedule(len(jobs), D)$ gives the max schedule among all the jobs.
   
   \textbf{Time complexity:} this algorithm is $O(nD)$, where $n$ is the number of jobs, and $D$ is maximum deadline among the jobs. The most costly part of the program is the nested loop in which the inner loop runs $D$ times, and the outer loop runs $n$ times (similar with 0-1 knapsack). Thus the complexity is $O(nD)$.
 
