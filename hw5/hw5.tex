@@ -1,0 +1,284 @@
+% Author: Zhehao Wang 404380075 zhehao@cs.ucla.edu
+
+% Grammar package: http://tex.stackexchange.com/questions/24886/which-package-can-be-used-to-write-bnf-grammars
+
+\documentclass{article}
+\topmargin = 0in
+\oddsidemargin = 0in
+\evensidemargin = \oddsidemargin
+\textwidth = 6.5in
+\textheight = 8in
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{syntax}
+\usepackage{graphicx}
+
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\makeatletter
+\def\BState{\State\hskip-\ALG@thistlm}
+\makeatother
+
+\title{CS180 Homework 4}
+\author{Zhehao Wang 404380075 (Dis 1B)}
+\date{Apr 23, 2016}
+
+\begin{document}
+\maketitle
+
+\begin{description}
+
+\item[1]{Printing minimize space square DP}
+
+  The algorithm's given in alg \ref{alg:printing-space-dp}. The algorithm takes in a list of word lengths $l$, the maximum number of characters per line $M$, and returns the minimum sum of cube of extra spaces except the last line, and prints the index of words that should be followed by a line break.
+
+  The algorithm first calculates the number of extra space when putting word $i$ to word $j$ in a line, and stores it in $space$ array; the algorithm then calculates the corresponding line cost of putting word $i$ to word $j$ in a line, and stores it in $cost$. Finally the algorithm finds the minimum cost using the $cost$ array and dynamic programming (the recursion backing this is explained in Correctness section), meanwhile keeping record of the indices of line breaks, and prints such indices using recursion. 
+
+  \begin{algorithm}[H]
+  \caption{Minimize space square DP}
+  \label{alg:printing-space-dp}
+    \begin{algorithmic}[1]
+
+    \Function{printSpace}{l, M}
+
+      \State $space \gets [0...0][0...0]$
+      \State $cost \gets [0...0][0...0]$
+
+      \For {$0 < i \leq len(l)$}
+        \For {$i < j \leq len(l)$}
+          \State $space[i][j] = (M - j + i - \Sigma_{k=i}^{j}{l_k})$
+          \If {$space[i][j] < 0$}
+            \State $cost[i][j] \gets \infty$
+          \ElsIf {$j = len(l) \wedge space[i][j] \geq 0$}
+            \State $cost[i][j] \gets 0$
+          \Else
+            \State $cost[i][j] \gets space[i][j]^3$
+          \EndIf
+        \EndFor
+      \EndFor
+
+      $minCost \gets [0, \infty...\infty]$
+      $record \gets []$
+
+      \For {$0 < i \leq len(l)$}
+        \For {$0 \geq j < i$}
+          \If {$minCost[j] + cost[j+1][i] < minCost[i]$}
+            \State $minCost[i] \gets minCost[j] + cost[j+1][i]$
+            \State $record[i] \gets j+1$
+          \EndIf
+        \EndFor
+      \EndFor
+
+      \State $printResult(record, len(l))$
+      \State \Return $minCost[len(l)]$
+    \EndFunction
+
+    \Function{printResult}{record, index}
+      \If {$record[index] = 1$}
+        \State \Return {}
+      \EndIf
+      \State $printResult(record, record[index]-1)$
+      \State $print(record[index])$
+    \EndFunction
+
+    \end{algorithmic}
+  \end{algorithm}
+
+  \textbf{Correctness:} this algorithm's correctness is established via the following recursion.
+
+  $$ minCost[n] = min(minCost[j] + cost[j+1][n]) $$
+
+  where $0 \leq j < n$, $minCost[n]$ denotes the minimum sum of cube of extra space from character $1$ to $n$, and $cost[m][n]$ denotes the cube of extra space at the end of the line if words $m$ to $n$ are on the same line. The algorithm first calculates the $cost$ matrix with respect to the max number of characters per line $M$, then uses the result to calculate the minimum cost of printing from the start to the end of the given string.
+
+  \textbf{Time and space complexity:} time complexity is $O(n^2)$, where $n$ is the number of words. The two sequential nested for loops each will be executed $\frac{n \cdot (n-1)}{2}$ times, thus the overall time complexity is $O(n^2)$.
+
+  Space complexity is also $O(n^2)$, as we keep the $n \cdot n$ cost array and extra space array.
+  
+\item[2]{Longest palindrome substring}
+
+  The algorithm's given in alg \ref{alg:longest-palindrome}. The algorithm takes in string $s$, and returns the length of the longest palindrome substring.
+
+  The algorithm looks at each possible center of the palindrome substring, and find the longest palindrome substring among them.
+
+  \begin{algorithm}[H]
+  \caption{Longest palindrome substring}
+  \label{alg:longest-palindrome}
+    \begin{algorithmic}[1]
+
+    \Function{longestPalindrome}{s}
+      \State $length \gets 0$
+      \For {$0 \leq i < len(s)$}
+        \State $length \gets max(length, getPalindrome(s, 2i + 1), getPalindrome(s, 2i))$
+      \EndFor
+      \State \Return $length$
+    \EndFunction
+    
+    \Function{getPalindrome}{s, i}
+      \State $j \gets 0$
+      \State $left \gets 0$
+      \State $right \gets 0$
+      \State $inc \gets 0$
+      \If {$i = 2n$}
+        \State $left \gets n$
+        \State $right \gets n+1$
+      \ElsIf {$i = 2n - 1$}
+        \State $left \gets n-1$
+        \State $right \gets n+1$
+        \State $inc \gets 1$
+      \EndIf
+      \For {$0 < j < len(s)$}
+        \If $s[left - j] \neq s[right + j] \vee left - j < 1 \vee right + j > len(s)$
+          \Return $2j + inc$
+        \EndIf
+      \EndFor
+      \State \Return $2j + inc$
+    \EndFunction
+
+    \end{algorithmic}
+  \end{algorithm}
+
+  \textbf{Correctness:} a palindrome substring only has $2n - 1$ possible centers, where $n$ is the length of the string: namely the $n$ characters in the string, and $n-1$ gaps between each two adjacent characters. The algorithm starts from each of the possible centers, and expand left and right character by character till the resulting string is no longer a palindrome. The longest palindrome string among the $2n - 1$ centers is then returned. 
+
+  \textbf{Time complexity:} the given algorithm is $O(n^2)$, where $n$ is the length of the string. It tries all $n$ characters in the string as the middle point of the palindrome, as well as all $n-1$ gaps between each two characters in the string. Each trial takes at most $n$ visits to the characters in the string. Thus the total number of execution is $O(n \dot (2n - 1))$, which is $O(n^2)$.
+
+  \textit{Note:} Manacher's algorithm solves this problem with $O(n)$ time.
+
+\item[3]{Cut string DP}
+
+  The algorithm's given in alg \ref{alg:cut-string-dp}. The algorithm takes in the string $S$, cut array $P$, and returns the minimal cost of cutting, and prints the cut points in order.
+
+  The algorithm uses dynamic programming: the cut points are first extracted into the array $cutPoints$, and $cost[i][j]$ is used to denote the minimum total cost of cutting all the $cutPoints$ between the $i^{th}$ and $j^{th}$ cut points. In the first iteration, the algorithm calculates the $cost$ of all pairs of cut points with one cut point in between; using the result from the first iteration, the algorithm then calculatetes the $cost$ of all pairs of cut points with two cut point between them, choosing the cut point that yields smaller total cost...and eventually the algorithm gets the $cost$ from the start of the array to its end.
+
+  The algorithm uses $nextCut$ to keep track of the index of the cut point that results in smallest total cost when cutting between a $start$ and $end$ point in the string. The printing algorithm looks up the $index$, and recursively looks up the next cut points by checking $nextCut[start][index]$ and $nextCut[index][end]$, until all cut points are addressed.
+
+  \begin{algorithm}[H]
+  \caption{Cut string DP}
+  \label{alg:cut-string-dp}
+    \begin{algorithmic}[1]
+
+    \Function{cutString}{S, P}
+      \State $cutPoints \gets $ $[0].append($index of $1$s in $P).append(len(S))$ 
+      \State $cost \gets [0...0][0...0]$
+      \State $nextCut \gets [0...0][0...0]$
+
+      \For {$i = 2..len(cutPoints) - 1$}
+        \For {$j = 0..len(cutPoints) - 1 - i$}
+          \State $cost[j][j+i] \gets cutPoints[j+i] - cutPoints[j]$
+          \For {$k = 1..i - 1$}
+            \State $min_{index}, min_{value} \gets min(cost[j][j+k] + cost[j+k][j+i])$
+          \EndFor
+          \State $cost[j][j+i] \gets cost[j][j+i] + min_{value}$
+          \State $nextCut[j][j+i] \gets min_{index}$
+        \EndFor
+      \EndFor
+
+      \State $printResult(cutPoints, nextCut, 0, len(cutPoints))$
+      \State \Return {$cost[0][len(cutPoints)]$}
+    \EndFunction
+
+    \Function{printResult}{cutPoints, nextCut, start, end}
+      \State $cut \gets nextCut[start][end]$
+      \If {$cutPoints[cut] \neq 0$}
+        \State $print(cutPoints[cut])$
+      \EndIf
+      \If {$cut = 0$}
+        \State \Return {}
+      \EndIf
+      \State $printResult(cutPoints, nextCut, start, cut)$
+      \State $printResult(cutPoints, nextCut, cut, end)$
+    \EndFunction
+
+    \end{algorithmic}
+  \end{algorithm}
+
+  \textbf{Correctness:} the algorithm's correctness is established via the following recursion:
+
+\[
+  cost(s,t) = \begin{cases}
+                min(cost(s, t') + cost(t',t) + (t - s), t > s \\
+                0, t = s
+              \end{cases}
+\]
+
+  where $s$ and $t$ are starting and ending indices in the string, and $t'$ iterates over the cut points between $s$ and $t$. With this recursion, we build the algorithm from bottom-up: cost of starts and ends with no cut points in between are assigned first, then cost of starts and ends with one cut point in between, and eventually the cost of cutting the entire string.
+
+  \textbf{Time complexity:} with the specific description above, this algorithm is $O(m^3)$, where $m$ is the number of cut points in the array; which makes the algorithm $O(n^3)$ at worst, where $n$ is the number of characters in the array.
+
+  The triple nested for loops takes $O(n^3)$, while printing the cut points takes $O(n)$ as each cut point is visited exactly once in the entire recursion. Thus the algorithm is $O(n^3)$.
+
+\item[4]{Job scheduling DP}
+
+  (a) Prove that there exists an optimal schedule in which jobs are ordered by their deadlines increasing.
+
+  \textbf{Proof:} given jobs $j_1...j_m$, assume we have an optimal schedule $S = j_{w_1}...j_{w_n}$, and the scheduled jobs have deadlines $d_{w_1}...d_{w_n}$, and execution times $t_{w_1}...t_{w_n}$. 
+
+  If $d_{w_1}...d_{w_n}$ is increasingly ordered, then we have the conclusion.  
+
+  If not, there exists some $w_k$ such that $d_{w_k} > d_{w_{k+1}}$; since $j_{w_k}$ and $j_{w_{k+1}}$ are both in schedule $S$, we have $\Sigma_{i=1}^{k-1}{t_{w_i}} + t_{w_k} \leq \Sigma_{i=1}^{k-1}{t_{w_i}} + t_{w_k} + t_{w_{k+1}} \leq d_{w_{k+1}} < d_{w_k}$. And we have $d_{w_k} > \Sigma_{i=1}^{k-1}{t_{w_i}} + t_{w_k}$ and $d_{w_{k+1}} \geq \Sigma_{i=1}^{k-1}{t_{w_i}} + t_{w_k} + t_{w_{k+1}}$. Thus we can schedule $S'$ which is $S$ with the sequence of jobs $w_k$ and $w_{k+1}$ reversed, and $S'$ is no worse than $S$. Switching each adjacent pair satisfying $d_{w_k} > d_{w_{k+1}}$ in the optimal $S$, we have a schedule $S''$ which is optimal, and the jobs in $S''$ are ordered by increasing deadline.
+
+  Summarizing the two cases, we have the conclusion that there exists an optimal schedule whose jobs are ordered by their deadlines increasing.
+
+  (b) Algorithm is given in alg \ref{alg:job-scheduling-dp}. It takes in deadline array $d$ and execution time array $t$, and returns the schedule that has the maximum amount of jobs, and prints the jobs in the schedule. As proved in (a) there exists an optimal schedule whose jobs are ordered by increasing deadline, we pass in a list of jobs ordered by deadline to this algorithm. Its idea is not unlike the solution for knapsack problem (building from bottom-up, for each job and time, see if the job can be scheduled or not; and if it can be scheduled, see if scheduling it or not results in a larger schedule.).
+
+  \begin{algorithm}[H]
+  \caption{Cut string DP}
+  \label{alg:job-scheduling-dp}
+    \begin{algorithmic}[1]
+
+    \Function{scheduleJob}{d, t}
+      \State $schedule \gets [0...0][0...0]$
+      \State $D \gets max(d)$
+
+      \For {$t[0] \leq i < D$}
+        \State $schedule[1][i] = 1$
+      \EndFor
+
+      \For {$0 < i < len(d)$}
+        \For {$0 \leq j < D$}
+          \State $time \gets min(j, d[i]) - t[i]$
+          \If {$time < 0$}
+            \State $schedule[i][j] = schedule[i-1][j]$
+          \Else
+            \State $schedule[i][j] = max(schedule[i-1][j], 1 + schedule[i-1][time])$
+          \EndIf
+        \EndFor
+      \EndFor
+
+      \State $printResult(len(d), D, schedule, d, t)$
+      \State \Return {$schedule[len(d)][D]$}
+    \EndFunction
+
+    \Function{printResult}{i, j, schedule, d, t}
+      \If {$i \leq 0$}
+        \State \Return {}
+      \EndIf
+
+      \If {$schedule[i][j] = schedule[i-1][j]$}
+        \State $printResult(i-1, j, schedule, d, t)$
+      \Else
+        \State $time \gets min(j, d[i]) - t[i]$
+        \State $printResult(i-1, time, schedule, d, t)$
+        \State $print(i)$
+      \EndIf
+    \EndFunction
+
+    \end{algorithmic}
+  \end{algorithm}
+
+  \textbf{Correctness:} the algorithm's correctness is established via the following recursion:
+
+\[
+  schedule(n,t) = \begin{cases}
+                    schedule(n-1, t), min(d_n, t) < t_n \\
+                    max(schedule(n-1, t), schedule(n-1, min(d_n, t) - t_n) + 1), min(d_n, t) \geq t_n
+                  \end{cases}
+\]
+
+  where $n$ is the list of jobs from (\textit{total number of jobs}$ - n$) to the last job, and $t$ is the remaining time. If job $i$'s deadline cannot be met, we have the first branch of the recursion; otherwise the recursion chooses the larger schedule among the ones with or without the job $i$. Thus $schedule(len(jobs), D)$ gives the max schedule among all the jobs.
+  
+  \textbf{Time complexity:} this algorithm is $O(nD)$, where $n$ is the number of jobs, and $D$ is maximum deadline among the jobs. The most costly part of the program is the nested loop in which the inner loop runs $D$ times, and the outer loop runs $n$ times (similar with 0-1 knapsack). Thus the complexity is $O(nD)$.
+
+\end{description}
+
+\end{document}
