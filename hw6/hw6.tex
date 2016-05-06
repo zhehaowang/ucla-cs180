@@ -1,0 +1,72 @@
+% Author: Zhehao Wang 404380075 zhehao@cs.ucla.edu
+
+% Grammar package: http://tex.stackexchange.com/questions/24886/which-package-can-be-used-to-write-bnf-grammars
+
+\documentclass{article}
+\topmargin = 0in
+\oddsidemargin = 0in
+\evensidemargin = \oddsidemargin
+\textwidth = 6.5in
+\textheight = 8in
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{syntax}
+\usepackage{graphicx}
+
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\makeatletter
+\def\BState{\State\hskip-\ALG@thistlm}
+\makeatother
+
+\title{CS180 Homework 6}
+\author{Zhehao Wang 404380075 (Dis 1B)}
+\date{May 11, 2016}
+
+\begin{document}
+\maketitle
+
+\begin{description}
+
+\item[1]{King of the tournament}
+
+  (a)
+
+  (b)
+  
+\item[2]{Same real number in two sets}
+  
+  (a) The algorithm's given in alg \ref{alg:same-real-number-two-sets}. We first sort the set $S_1$ ($O(n \log n)$), then for every element in a $S_2$, we do a binary search in the $S_1$ ($O(n \log n)$ for this process). Thus the algorithm is $O(n \log n)$. The correctness is obvious.
+
+  \begin{algorithm}[H]
+  \caption{Same real number in two sets}
+  \label{alg:same-real-number-two-sets}
+    \begin{algorithmic}[1]
+    
+    \Function{sameNumber}{S1, S2}
+      \State $S'_1 \gets sort(S_1)$
+      \For {$i \in S_2$}
+        \If {$binarySearch(i, S'_1) = true$}
+          \State \Return {$true$}
+        \EndIf
+      \EndFor
+      \State \Return {$false$}
+    \EndFunction
+
+    \end{algorithmic}
+  \end{algorithm}
+
+  (b) 
+
+\item[3]{Find different binary number}
+ 
+
+
+\item[4]{Modified radix sort}
+  
+
+
+\end{description}
+
+\end{document}
