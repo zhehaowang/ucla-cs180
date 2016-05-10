@@ -222,7 +222,7 @@
   (b) Algorithm is given in alg \ref{alg:job-scheduling-dp}. It takes in deadline array $d$ and execution time array $t$, and returns the schedule that has the maximum amount of jobs, and prints the jobs in the schedule. As proved in (a) there exists an optimal schedule whose jobs are ordered by increasing deadline, we pass in a list of jobs ordered by deadline to this algorithm. Its idea is not unlike the solution for knapsack problem (building from bottom-up, for each job and time, see if the job can be scheduled or not; and if it can be scheduled, see if scheduling it or not results in a larger schedule.).
 
   \begin{algorithm}[H]
-  \caption{Cut string DP}
+  \caption{Job scheduling DP}
   \label{alg:job-scheduling-dp}
     \begin{algorithmic}[1]
 

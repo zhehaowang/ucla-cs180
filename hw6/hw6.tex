@@ -31,13 +31,44 @@
 
 \item[1]{King of the tournament}
 
-  (a)
+  (a) Prove that the king of the tournament exists in the tournament graph.
 
-  (b)
+  \textbf{Proof:} in class we proved the following theorem (by induction, each time removing a node and all the nodes it connects to).
+
+  \textbf{Theorem:} given a directed graph $G = (V, E)$; there exists $I(G)$ who is an independent set in $G$'s underlying undirected graph such that for any $v$ in $V$, there exists a $w$ in $I(G)$ such that $(w, v) \in E$ or $(w, u) \in E$ and $(u, v) \in E$ for a $u \in V$.
+
+  Since the underlying undirected graph of the tournament graph is a complete graph, all of its independent sets contain one node. Thus according to the theorem, there exists an independent set with one node $n$, such that $n$ can reach any other node by a path of $length \leq 2$. Thus we have the conclusion.
+
+  (b) The algorithm's given in alg \ref{alg:find-king-of-tournament}. Given a graph $G = (V, E)$, the algorithm returns the king of $G$. We start from an arbitrary node, if it's directly connected to every other node in the graph, we return this node as the king; otherwise we remove this node and all the nodes it connects to, and find the king among the remaining nodes. We do this recursively until we find a node which is directly connected to every other remaining node, and return that node as the king. 
+
+  \begin{algorithm}[H]
+  \caption{Find king of tournament}
+  \label{alg:find-king-of-tournament}
+    \begin{algorithmic}[1]
+    
+    \Function{king}{V, E}
+      \State $s \gets firstNode(V)$
+      \If {$s.outDegree = |V| - 1$}
+        \State \Return {$s$}
+      \EndIf
+      \State $V \gets V - s$
+      \For {\textbf{each} \{$v | (s, v) \in E$\}}
+        \State $E \gets E - (s,v)$
+        \State $V \gets V - v$
+      \EndFor
+      \State \Return {$king(V, E)$}
+    \EndFunction
+
+    \end{algorithmic}
+  \end{algorithm}
+
+  \textbf{Correctness:} the algorithm starts with an arbitrary node $s$ in graph $G$. If $s$ is connected to all other nodes in $G$, $s$ is obviously a king. If otherwise, since we are given a complete graph, we have $\forall v \in V$, if $(s,v) \notin E$, then $(v,s) \in E$. Let $G'$ be the remaining graph after we remove $s$ and all the nodes $s$ connects to in $E$. By (a), we have that there exists a king $s'$ in $G'$. Since $(s', s) \in E$, we have that $s'$ is also a king in $G$ (without the removal). Thus we can recursively reduce the problem, until a king is found.
+
+  \textbf{Time complexity:} the recursive algorithm visits and removes each edge at most once, and all other operations in each recursion is constant time, so the overall complexity is $O(|E|)$.
   
 \item[2]{Same real number in two sets}
   
-  (a) The algorithm's given in alg \ref{alg:same-real-number-two-sets}. We first sort the set $S_1$ ($O(n \log n)$), then for every element in a $S_2$, we do a binary search in the $S_1$ ($O(n \log n)$ for this process). Thus the algorithm is $O(n \log n)$. The correctness is obvious.
+  (a) The algorithm's given in alg \ref{alg:same-real-number-two-sets}. We first sort the set $S_1$ ($O(n \log n)$), then for every element in a $S_2$, we do a binary search in the sorted $S_1$ ($O(n \log n)$ for this process). Thus the algorithm is $O(n \log n)$. The correctness is obvious.
 
   \begin{algorithm}[H]
   \caption{Same real number in two sets}
@@ -57,15 +88,117 @@
     \end{algorithmic}
   \end{algorithm}
 
-  (b) 
+  (b) The algorithm's given in alg \ref{alg:real-number-two-sets-sum-equals}. We first sort the set $S_1$ ($O(n \log n)$), then for every element $e$ in a $S_2$, we do a binary search on $(X - e)$ in the sorted $S_1$ ($O(n \log n)$ for this process). Thus the algorithm is $O(n \log n)$. The correctness is obvious.
+
+  \begin{algorithm}[H]
+  \caption{Sum of real number in two sets equals X}
+  \label{alg:real-number-two-sets-sum-equals}
+    \begin{algorithmic}[1]
+    
+    \Function{sumEqualsX}{S1, S2, X}
+      \State $S'_1 \gets sort(S_1)$
+      \For {$i \in S_2$}
+        \If {$binarySearch(X-i, S'_1) = true$}
+          \State \Return {$true$}
+        \EndIf
+      \EndFor
+      \State \Return {$false$}
+    \EndFunction
+
+    \end{algorithmic}
+  \end{algorithm}
+
+  (c.i) The algorithm's given in alg \ref{alg:real-number-one-set-sum-equals}. After sorting $S$, we maintain two pointers that points at the left and right of the sorted set. We compare the sum of the two pointed numbers, and return if it equals with X, move left pointer right if it's smaller than $X$, and move right pointer left if it's larger than $X$, until right and left pointers meet. The initial sorting is $O(n \log n)$, and the two pointer traversal afterwards is $O(n)$, so the overall algorithm is $O(n \log n)$. The correctness is obvious from the above description.
+
+  \begin{algorithm}[H]
+  \caption{Sum of real number in one set equals X}
+  \label{alg:real-number-one-set-sum-equals}
+    \begin{algorithmic}[1]
+    
+    \Function{sumEqualsX}{S, X}
+      \State $S' \gets sort(S_1)$
+      \State $left \gets 0$
+      \State $right \gets size(S)$
+      \While {$right > left$}
+        \If {$S'[right] + S'[left] = X$}
+          \State \Return {$true$}
+        \ElsIf {$S'[right] + S'[left] < X$}
+          \State $left \gets left + 1$
+        \Else
+          \State $right \gets right - 1$
+        \EndIf
+      \EndWhile
+      \State \Return {$false$}
+    \EndFunction
+
+    \end{algorithmic}
+  \end{algorithm}
+
+  (c.ii) Take the initial sorting step out of alg \ref{alg:real-number-one-set-sum-equals}, the solution for (c.i), and we have the $O(n)$ solution for this problem. Correctness and complexity are analyzed in (c.i).
 
 \item[3]{Find different binary number}
  
+  (a) The algorithm's given in alg \ref{alg:find-different-binary-number}. Given an $n \times n$ matrix $M$, the algorithm returns the different number. For each $0 < i \leq n$, the algorithm finds the $i^{th}$ bit of the $i^{th}$ number in the array, and makes (1 - that number) to be the $i^th$ bit of the resulting number. 
 
+  \begin{algorithm}[H]
+  \caption{Find different number in an array}
+  \label{alg:find-different-binary-number}
+    \begin{algorithmic}[1]
+    
+    \Function{differentNumber}{M}
+      \State $n \gets len(M)$
+      \State $result \gets []$
+      \For {$0 < i \leq n$}
+        \State $result[i] \gets 1 - M[i][i]$
+      \EndFor
+      \State \Return $result$
+    \EndFunction
 
-\item[4]{Modified radix sort}
-  
+    \end{algorithmic}
+  \end{algorithm}
 
+  \textbf{Correctness:} as shown in the pseudocode, given $n$ numbers, the algorithm is guaranteed to return a number that has at least one bit that's different from each given number; thus the algorithm can find a number that's different from all given numbers.
+
+  \textbf{Time complexity:} one loop over $n$ with a constant number of operations inside makes the algorithm $O(n)$.
+
+  (b) Prove that $\Omega(n)$ is the lower bound.
+
+  \textbf{Proof:} consider the $n$ binary numbers we are given, we have a solution space that's a binary tree with height $n + 1$, and all nodes except the root in the binary tree represents $0$ or $1$ for the corresponding bit in a number. 
+
+  The $n$ given binary numbers represent $n$ paths down the binary tree. Our result path needs to differ from each of the given paths by at least one choice. Since the given numbers could take any paths down the tree, the algorithm would need to look at at least one choice for each given number, which makes the algorithm $\Omega(n)$. 
+
+\item[4]{Radix sort different length}
+
+  The algorithm's given in alg \ref{alg:radix-sort-different-length}. The algorithm takes a list and returns a sorted list. We first do a bucket sort on the length of all numbers, so that numbers of the same length will fall into the same bucket, and then radix sort numbers in each bucket, and output the sorted results bucket by bucket.
+
+  \begin{algorithm}[H]
+  \caption{Radix}
+  \label{alg:radix-sort-different-length}
+    \begin{algorithmic}[1]
+    
+    \Function{radixDifferent}{list}
+      \State $L \gets []$
+      \State $maxlen \gets 0$
+      \State $result \gets []$
+      \For {$i \in list$}
+        \If {$\log_{n}{i} > maxlen$}
+          \State $maxlen \gets \log_{n}{i}$
+        \EndIf
+        \State $L[\log_{n}{i}].enqueue(i)$
+      \EndFor
+      \For {$0 < i \leq maxlen$}
+        \State $radixSort(L[i])$
+        \State $result.concat(L[i])$
+      \EndFor
+      \State \Return $result$
+    \EndFunction
+
+    \end{algorithmic}
+  \end{algorithm}
+
+  \textbf{Correctness:} in the result array, for each $i$, all elements of length $i$ will be sorted. And for each $j < i$, elements of length $j$ will always come before elements of length $i$. So the result array is sorted.
+
+  \textbf{Time complexity:} let $N$ be the total number of digits in the given list. The first loop gets the length of all elements, and put elements into corresponding buckets; this step is $O(N)$. The second loop goes through all the buckets and radix sort elements in each bucket; the complexity of radix sorting $m$ elements of length $l$ is $O(ml)$, thus this step is also linear to the total number of digits. So the overall algorithm is $O(N)$.
 
 \end{description}
 
