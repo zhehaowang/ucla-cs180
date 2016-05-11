@@ -163,7 +163,7 @@
 
   (b) Prove that $\Omega(n)$ is the lower bound.
 
-  \textbf{Proof:} consider the $n$ binary numbers we are given, we have a solution space that's a binary tree with height $n + 1$, and all nodes except the root in the binary tree represents $0$ or $1$ for the corresponding bit in a number. 
+  \textbf{Proof:} consider the $n$ binary numbers we are given, we have a solution space that's a full binary tree with height $n + 1$, and all nodes except the root in the binary tree represents $0$ or $1$ for the corresponding bit in a number. 
 
   The $n$ given binary numbers represent $n$ paths down the binary tree. Our result path needs to differ from each of the given paths by at least one choice. Since the given numbers could take any paths down the tree, the algorithm would need to look at at least one choice for each given number, which makes the algorithm $\Omega(n)$. 
 
@@ -177,7 +177,7 @@
     \begin{algorithmic}[1]
     
     \Function{radixDifferent}{list}
-      \State $L \gets []$
+      \State $L \gets $ an empty list of queues
       \State $maxlen \gets 0$
       \State $result \gets []$
       \For {$i \in list$}
@@ -198,7 +198,7 @@
 
   \textbf{Correctness:} in the result array, for each $i$, all elements of length $i$ will be sorted. And for each $j < i$, elements of length $j$ will always come before elements of length $i$. So the result array is sorted.
 
-  \textbf{Time complexity:} let $N$ be the total number of digits in the given list. The first loop gets the length of all elements, and put elements into corresponding buckets; this step is $O(N)$. The second loop goes through all the buckets and radix sort elements in each bucket; the complexity of radix sorting $m$ elements of length $l$ is $O(ml)$, thus this step is also linear to the total number of digits. So the overall algorithm is $O(N)$.
+  \textbf{Time complexity:} let $N$ be the total number of digits in the given list. The first loop gets the length of all elements, and put elements into corresponding buckets; this step is $O(N)$. The second loop goes through all the buckets and radix sort elements in each bucket; the complexity of radix sorting $m$ elements of length $l$ is $O(ml)$, thus combining all the buckets, this step is also linear to the total number of digits. So the overall algorithm is $O(N)$.
 
 \end{description}
 
