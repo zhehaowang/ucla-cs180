@@ -31,7 +31,7 @@
 
 \item[1]{Largest sum of contiguous subarray}
   
-  The iterative algorithm's given in alg \ref{alg:largest-sum-contiguous-subarray-iterative} (Kadane's algorithm). The algorithm uses the first non-negative element as the starting point, and iterates through the given array. Each time it considers adding the iterated element to the subarray, if adding the element does not cause the sum of the subarray to fall below 0. If otherwise, we can start the subarray again from the next non-negative element, until all elements are iterated. We record the current longest subarray as we go through the list, and return it after the traversal's done.
+  The iterative algorithm's given in alg \ref{alg:largest-sum-contiguous-subarray-iterative} (Kadane's algorithm). The algorithm uses the first non-negative element as the starting point, and iterates through the given array. Each time it considers adding the iterated element to the subarray, if adding the element does not cause the sum of the subarray to fall below 0. Otherwise, we can start the subarray again from the next non-negative element, until all elements are iterated. We record the current largest subarray as we go through the list, and return it after the traversal's done.
 
   \begin{algorithm}[H]
   \caption{Kadane's algorithm}
@@ -76,14 +76,14 @@
       \EndIf
       
       \State $maxTillHere \gets max(0, maxTillHere + A_1)$
-      \State \Return $max(maxSum(A_2...A_n, maxTillHere, maxSoFar), maxTillHere)$
+      \State \Return $max(maxSum(A_2...A_n, maxTillHere), maxTillHere)$
     \EndFunction
     \end{algorithmic}
   \end{algorithm}
 
   \textbf{Time complexity:} for both algorithms, initial check for if input array's all negative takes $O(n)$. Afterwards, each element in the input array is considered once. And in each loop body or recursive call the number of operations is constant. So both algorithms are $O(n)$.
 
-  \textbf{Correctness:} for all-negative array, the algorithm's correctness is obvious. For arrays with non-negative elements $A$, the algorithm's correctness is established by the conclusion: ``let $S=A_m...A_n$ be the largest sum contiguous subarray in A, $\Sigma_{i=m}^{k}{A_i} \geq 0$ holds for $\forall k \in [m,n]$''. The conclusion can be proved by contradiction: if a $k$ exists such that $\Sigma_{i=m}^{k}{A_i} < 0$, then the subarray $S'=A_{k+1}...A_n$ would have a larger sum than $S$, which contradicts with $S$ being the largest subarray.
+  \textbf{Correctness:} for all-negative array, the algorithm's correctness is obvious. For array $A$ with non-negative elements, the algorithm's correctness is established by the conclusion: ``let $S=A_m...A_n$ be the largest contiguous subarray in A, $\Sigma_{i=m}^{k}{A_i} \geq 0$ holds for $\forall k \in [m,n]$''. The conclusion can be proved by contradiction: if a $k$ exists such that $\Sigma_{i=m}^{k}{A_i} < 0$, then the subarray $S'=A_{k+1}...A_n$ would have a larger sum than $S$, which contradicts with $S$ being the largest subarray.
 
   Given this conclusion, the algorithm can carve out each satisfying subarray in one iteration, and record the largest.
 
@@ -136,7 +136,7 @@
   \label{fig:pb2}
   \end{figure}
 
-  \textbf{Correctness:} the correctness for getting the largest element is obvious. The reason why the $2^{nd}$ largest element can only be among the same-trace siblings (blue elements in fig \ref{fig:pb2}) is that each of the same-trace sibling is the largest in a sub tree, and all such subtrees combined makes the entire input array without the largest element. So the largest among these subtrees is the $2^{nd}$ largest in the original.
+  \textbf{Correctness:} the correctness for getting the largest element is obvious. The reason why the $2^{nd}$ largest element can only be among the same-trace siblings (blue elements in fig \ref{fig:pb2}) is that each of the same-trace sibling is the largest in a sub tree, and all such subtrees combined make up the entire input array without the largest element. So the largest among these subtrees is the $2^{nd}$ largest in the original array.
 
 \item[3]{Element uniqueness lower bound and closest pair}
  
@@ -148,9 +148,9 @@
 
 \item[4]{Convex hull divide and conquer}
 
-  The algorithm's given in alg \ref{alg:convex-hull-divide and conquer}. The idea's that we first sort the points by their X-axis, and divide them into two groups with about the same number of points in each. If either group has less than 4 points, we just connect all the points in the group. Otherwise, we call divide recursively (line \ref{line:start1} - \ref{line:end1}).
+  The algorithm's given in alg \ref{alg:convex-hull-divide and conquer}, and is initiated by calling $convex($set of points$)$. The idea's that we first sort the points by their X-axis, and divide them into two groups with about the same number of points in each. If either group has less than 4 points, we just connect all the points in the group. Otherwise, we call divide recursively (line \ref{line:start1} - \ref{line:end1}).
 
-  Now assume that we have the convex hull of both the left and the right group, we want to merge the two by finding the top and bottom tangents\footnote{A tangent is a line connecting a point in the left group and a point in the right group, and crosses both the left and right convex hulls exactly once} for both groups and discarding all points whose X-axis value falls in between. We find the tangents by starting with a line between $pr$, the leftmost point in the right group, and $pl$, the rightmost point in the left group. To find the lower tangent (line \ref{line:start2} - \ref{line:end2}), we check if $pr$'s counter-clockwise neighbor is below this line, if so, we drop $pr$ and move $pr$ to its counter-clockwise neighbor. Similarly, we check and move $pl$ clockwise. Finding the upper tangent (line \ref{line:start3} - \ref{line:end3}) is symmetric with the lower tangent.
+  Now assume that we have the convex hull of both the left and the right group, we want to merge the two by finding the top and bottom tangents\footnote{A tangent is a line connecting a point in the left group and a point in the right group, and crosses both the left and right convex hulls exactly once} for both groups and discarding all points whose X-axis value falls in between. We find the tangents by starting with a line between $p_r$, the leftmost point in the right group, and $p_l$, the rightmost point in the left group. To find the lower tangent (line \ref{line:start2} - \ref{line:end2}), we check if $p_r$'s counter-clockwise neighbor is below this line, if so, we drop $p_r$ and move $p_r$ to its counter-clockwise neighbor. Similarly, we check and move $p_l$ clockwise. Finding the upper tangent (line \ref{line:start3} - \ref{line:end3}) is symmetric with the lower tangent.
 
   With the tangents added and nodes in between dropped, we then return the remaining nodes in $P$ in order, and we have a convex hull for the left and right groups combined.
 
@@ -174,18 +174,18 @@
       \State $right \gets convexHull(P_{\frac{n}{2} + 1}...P_n)$
       \label{line:end1}
 
-      \State $pl \gets rightMost(left)$
+      \State $p_l \gets rightMost(left)$
       \label{line:start2}
-      \State $pr \gets leftMost(right)$
-      \While {$line(pl, pr).isTangent(left) = false$}
-        \State $discard(pl)$
-        \State $pl \gets pl.nextClockwise()$
+      \State $p_r \gets leftMost(right)$
+      \While {$line(p_l, p_r).isTangent(left) = false$}
+        \State $discard(p_l)$
+        \State $p_l \gets p_l.nextClockwise()$
       \EndWhile
-      \While {$line(pl, pr).isTangent(right) = false$}
-        \State $discard(pr)$
-        \State $pr \gets pr.nextCounterClockwise()$
+      \While {$line(p_l, p_r).isTangent(right) = false$}
+        \State $discard(p_r)$
+        \State $p_r \gets p_r.nextCounterClockwise()$
       \EndWhile
-      \State $addLine(pl, pr)$ 
+      \State $addLine(p_l, p_r)$ 
       \label{line:end2}
 
       \State
@@ -203,7 +203,7 @@
     \end{algorithmic}
   \end{algorithm}
 
-  \textbf{Time complexity:} given the description, at worst we need to visit all $n$ nodes exactly once in a merge of $n$ nodes. During each visit, the check $isTangent$ is constant time (as we only need to check one neighbor). So the complexity is represented as $T(n) = 2T(\frac{n}{2}) + n$. And by master theorem (also, the same complexity representation as mergesort), the algorithm is $O(n \log n)$.
+  \textbf{Time complexity:} given the description, at worst we need to visit all $n$ nodes exactly once in a merge of $n$ nodes. During each visit, the check $isTangent$ is constant time (as we only need to check one neighbor each time). So the complexity is represented as $T(n) = 2T(\frac{n}{2}) + n$. And by master theorem (also, the same complexity representation as mergesort), the algorithm is $O(n \log n)$.
 
   \textbf{Correctness:} the algorithm's correctness is obvious per the description of the merging process and definition of upper / lower tangents. As an example, figure \ref{fig:pb4} illustrates the correctness of finding the lower tangent and the merging process. (left 3 and right 4 nodes are being merged. When finding the lower tangent, the lines we tried are denoted as red dotted lines, and red nodes are discarded as we try those lines. The blue dotted lines are the tangents we find eventually; and all the blue lines, along with the remaining nodes, are outputted as a convex hull).
 
