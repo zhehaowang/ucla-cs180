@@ -20,9 +20,9 @@
 \def\BState{\State\hskip-\ALG@thistlm}
 \makeatother
 
-\title{CS180 Homework 7}
+\title{CS180 Homework 8}
 \author{Zhehao Wang 404380075 (Dis 1B)}
-\date{May 18, 2016}
+\date{May 24, 2016}
 
 \begin{document}
 \maketitle
@@ -31,20 +31,49 @@
 
 \item[1]{Min cut of the graph}
   
-  (1, 2) (3, 4) (1, 3); this would cover the min cut (S, T) , S, T non empty (one of the (s, t)s will satisfy s in S, t in T); as if not, at bottom level we'd know (1,2) (3,4) are each in the same S or T, and when we consider the first elements of two groups, we'd know all the nodes of the two groups are in the same group, until we reach top level where all nodes are in the same group which contradicts with S, T non empty.
-  This is $O(m^2)$ per the description of the complexity of Ford Fulkerson O(Ef), where E is m and f is the value of maxflow
+  \textbf{Algorithm description}: given the graph $G = (V, E)$, $V=v_1...v_n$; We first do $\frac{n}{2}$ MaxFlow between $(v_1, v_2), (v_3, v_4)...(v_{n-1}, v_n)$, then $\frac{n}{4}$ MaxFlow between $(v_1, v_3), (v_5, v_7)...$, ..., until the last step where we do $1$ MaxFlow between $(v_1, v_{\frac{n}{2}})$. 
+
+  (At step $i$, we do MaxFlow between $(v_1, v_{1 + 2^{i - 1}}), (v_{1 + 2 \cdot 2^{i - 1}}, v_{1 + 3 \cdot 2^{i - 1}}), (v_{1 + 4 \cdot 2^{i - 1}}, v_{1 + 5 \cdot 2^{i - 1}})...$, and the number of MaxFlow is $\frac{n}{2^i}$)
+
+  We do $\Sigma_{i=1}^{\log_{2}{n}}{\frac{n}{2^i}} = n$ total MaxFlow, and the maximum value among these MaxFlow is the min cut of the entire given graph.
   
+  \textbf{Time complexity:} with Ford Fulkerson algorithm\footnote{Whose complexity we analyzed in class}, the complexity of each MaxFlow is $O($ the number of edges $\cdot$ the value of the MaxFlow $)$. As we are given an unweighted graph, the value of the MaxFlow is the number of edges $m$. Thus each MaxFlow is $O(m^2)$, and we do $n$ in total, so the overall complexity is $O(m^2 n)$
+
+  \textbf{Correctness:} we want to show that the $n$ pairs would cover the min cut of the graph $(S, T)$, since if so, the algorithm's correct by \textbf{MaxFlow-min-cut Theorem}.
+
+  Both $S$ and $T$ are non-empty, and the min cut $(S, T)$ will be covered if at least one of our pairs $(s', t')$ satisfies $s' \in S$ and $t' \in T$. Assume that none of our pairs satisfies the condition. Given the description above, we know at step $1$ nodes $(v_1, v_2)$ and nodes $(v_3, v_4)$ are each in the same $S$ or $T$, and in step $2$, we know that nodes $(v_1, v_3)$ are in the same $S$ or $T$, thus $v_1...v_4$ are in the same $S$ or $T$. Similarly for each step, to satisfy our assumption, doing MaxFlow for $(v_1, v_{\frac{k}{2}})$ shows that nodes $v_1...v_k$ are in the same $S$ or $T$. Until the last step we have $v_1...v_n$ are all in the same $S$ or $T$, which contradicts with both being non-empty. 
+
+  Thus the min cut of the graph $(S, T)$ will be covered by at least one pair of nodes among the $n$ MaxFlow, and the algorithm's correct.
+
 \item[2]{Menger's theorem for vertices}
   
-  Holds. We can consider only directed graph, as undirected graph can be seen as directed graph with edges both ways; for each node N, we split it into two nodes (s,t), all incoming edges to N now goes to s, all outgoing edges from N goes from t; each edge have capacity 1; do MaxFlow and we have the theorem. (After the split, because of each edge having capacity only 1, we guarantee node disjointness: each node is used at most once)
+  The theorem holds.
+
+  \textbf{Proof:} for the theorem we can consider only directed graphs, as undirected graph can be represented as directed graph with edges both way.
+
+  In the directed graph $G = (V, E)$, for each node $v \in V - {s, t}$, we split $v$ into two nodes $i, o$ connected by an edge $(i, o)$, and all incoming edges to $v$ now goes to $i$, all outgoing edges from $v$ goes from $o$. Each edge has capacity $1$, so that after the split, each $(i, o)$ edge has capacity $1$, and in the MaxFlow each node in the original $G$ would be used at most once. With this we transformed the problem into Menger's theorem for edges \footnote{Which we proved in class}, which is immediate from \textbf{MaxFlow-min-cut Theorem}.
+
+  % https://www.math.ku.edu/~jmartin/courses/math796-S08/notes0331.pdf
 
 \item[3]{Deal cards and select}
- 
-  Bipartite graph, one part being the piles, the other part being the ranks; in/out degree of each makes Frobenius Hall Theorem hold, perfect matching exists.
+
+  \textbf{Solution:} let undirected unweighted bipartite graph $G = (V, E)$, where $V$ can be divided into two groups \textit{LeftV} and \textit{RightV}, and each group is a part in $G$. 
+
+  For any dealing of cards, let each node in \textit{LeftV} represent a pile of cards, and each node in \textit{RightV} represent a rank. Add an edge between a node $s \in$ \textit{LeftV} and a node $t \in RightV$ for each card of rank $t$ in pile $s$.
+
+  In the bipartite graph $G$, each node $s \in$ \textit{LeftV} has degree $4$, and each node $t \in RightV$ has degree $4$. So for each subset of nodes $S \subseteq$ \textit{LeftV}, $|N(S)| \geq |S|$ (Since otherwise there exists an $S'$, such that degree of $S' = 4 \cdot |S'| > 4 \cdot |N(S')|$, which contradicts with the definition of $N(S')$ since the total degree on $S'$'s side is larger than that on $N(S')$'s side). Thus by \textbf{Frobenius Hall Theorem}\footnote{Which we proved in class}, there exists a perfect matching between \textit{LeftV} and \textit{RightV}. And selecting a card of rank $t$ in pile $s$ only if the edge $(s,t)$ is in the perfect matching shows the conclusion.
+
+  % http://www.math.cmu.edu/~lohp/docs/math/mop2009/graph-theory-more.pdf
 
 \item[4]{Exam scheduling max flow}
 
-  Bipartite graph, one part being the classes, the other part being cartesion product of (time, room); there exists an edge from classes to (time, room) only if the room is larger than the class. Do max flow by adding the s and t and setting weights accordingly, schedule exists if max flow = number of classes
+  \textbf{Solution:} let undirected unweighted bipartite graph $G = (V, E)$, where $V$ can be divided into two groups \textit{LeftV} and \textit{RightV}, and each group is a part in $G$. 
+
+  For any classes, rooms and times combination, let each node $s_i \in$ \textit{LeftV} represent a class $E_i$, and each node $t_{jk} \in$ \textit{RightV} represent a room $S_j$ at time $T_k$. Add an edge between a node $s_i \in$ \textit{LeftV} and a node $t_jk \in RightV$ only if $E_i < S_j$.
+
+  The maximum number of exams that can be scheduled is the max matching (of edges that share no vertex) in bipartite graph $G$. To solve the max matching in bipartite problem\footnote{Which we talked about in class}, we add a node $a$ that connects to all $s_i \in$ \textit{LeftV}, and a node $b$ that connects to all $t_jk \in$ \textit{RightV}, set the capacity of the newly added edges to $1$, the capacity of the already existing edges to $\infty$, and do MaxFlow from $a$ to $b$.
+
+  A schedule exists iff the result of max flow equals with the number of classes; For each edge $(s_i, t_{jk})$ in the max matching, we assign the class $E_i$ to room $S_j$ at time $T_k$.
 
 \end{description}
 
